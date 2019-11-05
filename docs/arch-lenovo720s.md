@@ -431,11 +431,13 @@ There are a number of options, but I am going with `pamac`.  It comes from Manja
 
 First, we need to change it at the grub level.  Grub uses bitmap fonts, so we can't simply specify a different size.  We need to build a new font altogether.  Grub comes with a utility to do this.  DejaVu Sans Mono is a good choice as a source font; not only is it awesome, but it also has all the ASCII art characters for drawing borders and such.
 
-`sudo pacman -S ttf-dejavu` to install DejaVu Sans Mono if you have not already.
-`sudo grub-mkfont -s 36 -o /boot/grub/fonts/DejaVuSansMono.pf2 /usr/share/fonts/TTF/DejaVuSansMono.ttf` to generate a grub font.
-Edit `/etc/default/grub` and add the following line:
-GRUB_FONT=/boot/grub/fonts/DejaVuSansMono.pf2
-`grub-mkconfig -o /boot/grub/grub.cfg` to regenerate the grub config file.
+1. `sudo pacman -S ttf-dejavu` to install DejaVu Sans Mono if you have not already.
+2. `sudo grub-mkfont -s 36 -o /boot/grub/fonts/DejaVuSansMono.pf2 /usr/share/fonts/TTF/DejaVuSansMono.ttf` to generate a grub font.
+3. Edit `/etc/default/grub` and add the following line:
+    ```
+    GRUB_FONT=/boot/grub/fonts/DejaVuSansMono.pf2
+    ```
+4. `grub-mkconfig -o /boot/grub/grub.cfg` to regenerate the grub config file.
 
 Second, we need to change the Linux console font.  This applies after grub starts Arch.  The Linux console only supports PSF fonts.  Easier solution is to use the Terminus font:
 

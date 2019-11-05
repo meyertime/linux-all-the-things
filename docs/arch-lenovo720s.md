@@ -112,14 +112,14 @@ Long story short, the storage mode needs to be changed to ACPI and secure boot d
 1. Fully shut down Windows.  Note that simply clicking "Shut Down" is not enough.  See the section "Fully shut down Windows".
 3. Boot into UEFI firmware setup.
 4. Set Intel storage to ACPI mode in order for Linux to be able to use the built-in hard drive.
-5. The firmware will warn that all data will be lost, but that is not true.  Well, as long as the drive is still set up as it was from the factory, not in any RAID for example.  In any case, it does not trigger any kind of operation to erase data, but conceivably, it may be possible to suffer some data loss if special features of the Intel storage controller were being used previously.  It's a good idea to back up your data if you care about losing it.
-6. Windows will get stuck in a boot loop if it was not shut down completely first!  Make sure you followed the directions in the section "Fully shut down Windows".
-7. Disable secure boot, otherwise Linux will not be able to boot.  Some distros may support secure boot, but it would have to be configured and enabled later.
-8. Disable discrete graphics card temporarily.  I've read that it can cause hangs before the proper drivers are installed, and if the hang happens at a bad time, it can corrupt the disk during OS installation.
-9. While you're in there, you may want to change some other settings to your preference.
-10. Disable hotkey mode.  By default, hotkeys (which are also F-keys) perform the hotkey function unless `Fn` is held down, in which case the F-key function is performed.  If you use F-keys more frequently than the hotkeys, such as when programming or using other keyboard-heavy interfaces, you may want to disable hotkey mode.  In that case, F-keys are performed by default, and `Fn` is held down for the hotkey functions.
-11. Save and exit.
-12. Boot into Windows to make sure it still boots properly.
+    - The firmware will warn that all data will be lost, but that is not true.  Well, as long as the drive is still set up as it was from the factory, not in any RAID for example.  In any case, it does not trigger any kind of operation to erase data, but conceivably, it may be possible to suffer some data loss if special features of the Intel storage controller were being used previously.  It's a good idea to back up your data if you care about losing it.
+    - Windows will get stuck in a boot loop if it was not shut down completely first!  Make sure you followed the directions in the section "Fully shut down Windows".
+5. Disable secure boot, otherwise Linux will not be able to boot.  Some distros may support secure boot, but it would have to be configured and enabled later.
+6. Disable discrete graphics card temporarily.  I've read that it can cause hangs before the proper drivers are installed, and if the hang happens at a bad time, it can corrupt the disk during OS installation.
+7. While you're in there, you may want to change some other settings to your preference.
+    - Disable hotkey mode.  By default, hotkeys (which are also F-keys) perform the hotkey function unless `Fn` is held down, in which case the F-key function is performed.  If you use F-keys more frequently than the hotkeys, such as when programming or using other keyboard-heavy interfaces, you may want to disable hotkey mode.  In that case, F-keys are performed by default, and `Fn` is held down for the hotkey functions.
+8. Save and exit.
+9. Boot into Windows to make sure it still boots properly.
 
 ### Rearrange disk partitions
 
@@ -642,7 +642,7 @@ If you installed the `kde-applications` package, you already have a ton of appli
 - Text editor
     - Visual Studio Code
         - Yeah, it's more for programming than just text editing, but it makes a good text editor too.
-        - There is a known issue with the `code` package where elevating permissions to save files with root access does not work.  The workaround is to use the AUR package `visual-studio-code-aur` package instead.  See https://github.com/Microsoft/vscode/issues/70403
+        - There is a known issue with the `code` package where elevating permissions to save files with root access does not work.  The workaround is to use the AUR package `visual-studio-code-aur` instead.  See https://github.com/Microsoft/vscode/issues/70403
 - Office suite
     - LibreOffice
         - Install `libreoffice-still` for stable or `libreoffice-fresh` for latest.

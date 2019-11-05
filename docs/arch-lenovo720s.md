@@ -725,12 +725,13 @@ Windows compatibility layer is handy for running some Windows apps without the h
 
 ### Screen brightness
 
-The lowest brightness setting when using the hotkeys is actually off...  I'm wondering if there are any settings between off and the lowest non-off setting currently available.
+The lowest brightness setting when using the hotkeys is actually off...  This is not useful.  At the same time, it does not get very low in brightness before shutting off.  I was not able to find any settings to change this, but I did figure out a way to override the default behavior.
 
-Nope, no settings.  But there is a way to override the functionality:
+By default, it seems like there is more precision in the brightness at the higher brightness settings.  I personally think you need more precision at lower brightness settings and less at higher.  I also fixed this.
 
 1. Write two bash scripts--one to turn down the brightness and the other to turn it up.
-    - TODO: Include my scripts.
+    - In this repository, [brightness-down.sh](../src/brightness-down.sh) and [brightness-up.sh](../src/brightness-up.sh) simply execute [brightness.sh](../src/brightness.sh) with a different parameter.
+    - At first, I tried equal size steps, but that did not give good results.  It is now a hybrid approach which adds or subtracts 10% each time, but uses a minimum step size of 1/200 at the lower levels.  This gave higher precision at lower levels and a nice exponential progression at higher levels.
 2. Open `System Settings`.
 3. Navigate to `Workspace` -> `Shortcuts` -> `Custom Shortcuts`.
 4. `Edit` -> `New` -> `Global Shortcut` -> `Command/URL`.
@@ -739,7 +740,7 @@ Nope, no settings.  But there is a way to override the functionality:
     -  In order to map the screen brightness hotkeys, since I have hotkey mode disabled, I had to press `Fn` and the screen brightness key at almost the exact same time.  Otherwise, just pressing `Fn` was enough for it to detect a different shortcut.
     - It will prompt you to reassign since the key is already used for screen brightness changes under power management.  Reassign it.
 7. In the `Action` tab, type the path to your script.  (As always, make sure the script has a shebang line and execute permissions.)
-7. Click `Apply` and try it out.
+8. Click `Apply` and try it out.
 Repeat for the other screen brightness key.
 
 ### SSH

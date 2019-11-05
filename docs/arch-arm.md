@@ -15,18 +15,18 @@ Default user name is `alarm` password `alarm`.  Use `su` to get root access; def
 
 ## Reboot remotely
 
-You can always unplug/replug, but that’s a little harsh.  Here's a command:
+You can always unplug/replug, but that's a little harsh.  Here's a command:
 
 1. `shutdown -r 0` to reboot immediately.
 2. `shutdown 0` to shut down immediately, such as before unplugging.
 
 ## Set up wifi (Raspberry Pi)
 
-Wired is already configured to connect and use DHCP.  A special adapter is needed to connect it directly over USB.  Connect over wired for now and SSH.
+In order to configure wifi, we need a way to SSH in.  Wired networking is already configured to connect and use DHCP.  Connect over wired for now and SSH in.  (It is possible to connect the board directly to the computer over USB, but a special adapter is needed, which I don't have.)
 
 1. Use `su` to get root access.
 2. `wifi-menu` will walk you through setting up a new wifi connection.
-    - Forgot to use `-o` option to obscure the password.  At least that’s the option I remember... could be wrong.
+    - Forgot to use `-o` option to obscure the password.  At least that's the option I remember... could be wrong.
 3. `systemctl enable netctl-auto@wlan0.service` assuming `wlan0` is the interface.
     - Some docs say to use `netctl enable wlan0-my-wifi-connection` using the name of the wifi connection set up earlier.  However, apparently that is insufficient to get wifi to connect automatically, and it interferes with the above `netctl-auto` service from working properly.  Using only the steps above should get wifi connecting automatically.
 4. Reboot.  It should now connect to the wifi network automatically.
@@ -49,11 +49,12 @@ Wired is already configured to connect and use DHCP.  A special adapter is neede
 ## Set up AUR
 
 1. Install `base-devel` and `git` packages.
-2. At this point, you can install AUR packages the manual way, which you will have to do in order to install an AUR helper.  I would prefer `pacaur` since it’s written in bash/C, but it doesn’t install in Arch Linux ARM due to a missing dependency.  `yay` is the most popular now, but it uses Go which is a relatively heavy download.  If you have some other reason to install Go, then go with yay.  I decided to go with `pikaur` because it is written in python, and python is pretty common for AUR packages to require, and it’s less of a download than Go.
-3. `git clone https://aur.archlinux.org/pikaur.git`
-4. `cd pikaur`
-5. `makepkg -si`
-6. `pikaur -Syu` to do a full system upgrade including AUR packages.
+2. At this point, you can install AUR packages the manual way, which you will have to do in order to install an AUR helper.  I would prefer `pacaur` since it's written in bash/C, but it doesn't install in Arch Linux ARM due to a missing dependency.  `yay` is the most popular now, but it uses Go which is a relatively heavy download.  If you have some other reason to install Go, then go with yay.  I decided to go with `pikaur` because it is written in python, and python is pretty common for AUR packages to require, and it's less of a download than Go.
+3. Go to a temporary directory, such as `/tmp`.
+4. `git clone https://aur.archlinux.org/pikaur.git`
+5. `cd pikaur`
+6. `makepkg -si`
+7. `pikaur -Syu` to do a full system upgrade including AUR packages.
 
 ## Swap?
 
@@ -62,6 +63,6 @@ Wired is already configured to connect and use DHCP.  A special adapter is neede
 - vim
 - sudo
     - `EDITOR=vim visudo` and uncomment the line that grants access to the wheel group.
-        - Be careful that you uncomment the correct line.  Read the comments, because one line requires a password and one doesn’t.  I highly recommend requiring a password when using sudo.
+        - Be careful that you uncomment the correct line.  Read the comments, because one line requires a password and one doesn't.  I highly recommend requiring a password when using sudo.
         - I have no idea why the group is called “wheel”, but my research indicates that it is specifically for authorizing super user access.
     - `usermod -a -G wheel alarm` to add alarm to the wheel group.

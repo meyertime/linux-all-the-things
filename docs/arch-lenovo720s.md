@@ -132,23 +132,24 @@ From the factory, here are the partitions in the order they are laid out on disk
 5. OEM partition, about 1 GB, NTFS.  Windows will not allow you to mount this partition to a drive.  I checked the GPT partition type, and it is "Windows Recovery Environment", also known as "Windows Preinstallation Environment".  Apparently, it is used by Windows to recover the system, probably for doing a factory reset.
 
 Assuming that the disk partitions are laid out as it was from the factory, use the following step-by-step instructions.  All of this can be done in Disk Management in Windows unless otherwise noted.  If you don't already know how to work with disk partitions, then you probably shouldn't be doing any of this, and if you have already mucked with the partitions, then I'm sure you know what to do instead.
+
 1. Work on OEM partition if desired.
     - This can be left as-is.  However, since factory reset can destroy the Linux partition, we may want to disable Windows' ability to do so.
-    - I think this could be done by changing the partition type to something else--for example, a Windows basic data partition.
-    - You could also remove the partition.  I think this would not cause any problems, unless you are trying to use some Windows recovery options; however, I have not tried this.
+        - I think this could be done by changing the partition type to something else--for example, a Windows basic data partition.
+        - You could also remove the partition.  I think this would not cause any problems, unless you are trying to use some Windows recovery options; however, I have not tried this.
 2. Do away with LENOVO D: drivers partition if it exists and if desired.  There's no sense in keeping the free space from this partition inaccessible, and I don't see a reason to keep these files in a separate partition.
     1. Copy the data from this partition into the Windows partition.  I copied them under `C:\LENOVO`.
     2. Delete the LENOVO D: partition
-    3. Shrink the Windows C: partition to make room for Linux.
-        - 100 GB should be enough for Windows while allowing full OS updates.  After doing disk cleanup, uninstalling non-essential apps, disabling and deleting page files and hibernation and not necessarily caring about OS updates, 50 GB is sufficient.
-        - Sometimes I have gotten an error the first time I tried to shrink the partition, but it worked the second time.
-        - If it still doesn't work, it may be because the disk is too fragmented.  You may have to defragment the disk (not recommended for SSDs) or use some other tool to consolidate the data before shrinking.
-    4. Move the Windows C: partition to the right, next to the following partition (or end of disk if none).
-        - This will allow the Linux partition to come before Windows on the disk.  That way, if you need more space on one partition or the other, you only have to move the smaller one.
-        - I used GParted to move the Windows partition.  Windows booted fine after moving the partition; just make sure Windows was fully shut down last time (no fast startup, hibernate, etc.)
-    5. Optionally, create a Linux swap partition.  I personally opted for a swap file instead of a swap partition, because 16GB is plenty of RAM, and especially with an SSD, I plan to avoid swapping as much as possible, so it seems a waste to dedicate a whole partition to swap.  You may want a swap partition, however, if you plan to use a file system other than `ext4` which doesn't play well with swap files or if you have significantly less RAM or plan to do a lot of things with high memory usage at the same time.
-    6. Create a partition for Linux in the unused space.
-        - I did this using Disk Management in Windows even though it doesn't use the right partition type for Linux.  It's easy enough to change the partition type later.  Disk Management also seems to keep the partition numbers in the order they are on disk, whereas when I did this using Linux once, new partitions always got the highest number.
+3. Shrink the Windows C: partition to make room for Linux.
+    - 100 GB should be enough for Windows while allowing full OS updates.  After doing disk cleanup, uninstalling non-essential apps, disabling and deleting page files and hibernation and not necessarily caring about OS updates, 50 GB is sufficient.
+    - Sometimes I have gotten an error the first time I tried to shrink the partition, but it worked the second time.
+    - If it still doesn't work, it may be because the disk is too fragmented.  You may have to defragment the disk (not recommended for SSDs) or use some other tool to consolidate the data before shrinking.
+4. Move the Windows C: partition to the right, next to the following partition (or end of disk if none).
+    - This will allow the Linux partition to come before Windows on the disk.  That way, if you need more space on one partition or the other, you only have to move the smaller one.
+    - I used GParted to move the Windows partition.  Windows booted fine after moving the partition; just make sure Windows was fully shut down last time (no fast startup, hibernate, etc.)
+5. Optionally, create a Linux swap partition.  I personally opted for a swap file instead of a swap partition, because 16GB is plenty of RAM, and especially with an SSD, I plan to avoid swapping as much as possible, so it seems a waste to dedicate a whole partition to swap.  You may want a swap partition, however, if you plan to use a file system other than `ext4` which doesn't play well with swap files or if you have significantly less RAM or plan to do a lot of things with high memory usage at the same time.
+6. Create a partition for Linux in the unused space.
+    - I did this using Disk Management in Windows even though it doesn't use the right partition type for Linux.  It's easy enough to change the partition type later.  Disk Management also seems to keep the partition numbers in the order they are on disk, whereas when I did this using Linux once, new partitions always got the highest number.
 
 ### Configure hardware clock
 
@@ -211,17 +212,17 @@ My laptop has a 4k monitor, and the text is extremely small.  Let's download and
     - `fdisk /dev/nvme0n1`, for example, starts fdisk for the given drive.
     - It's easy enough to read the menus and proceed.
     - Some of the help screens are paged.  If so, the space bar prints the next page and the `Q` key exits the paged information.
-2. If you opt for a Linux swap partition instead of a swap file, create that partition if you have not already.  Either way, change the partition type to Linux swap.  You can list known partition types in fdisk.
-    - If you do choose a swap partition, configuring Arch to use it is not covered in this documentation.
-3. Create the Linux partition in unused space if you have not already.  Either way, use the partition type for Linux root x86_64.  You can list known partition types in fdisk.
-4. `mkfs.ext4 /dev/nvme0n1p3` to format Linux partition. This destroys all data on the partition!  Your device name may vary, so double-check this before running.  It should warn you if there's an existing file system.  If you just created a new partition, there should not be an existing file system.
+    - If you opt for a Linux swap partition instead of a swap file, create that partition if you have not already.  Either way, change the partition type to Linux swap.  You can list known partition types in fdisk.
+        - If you do choose a swap partition, configuring Arch to use it is not covered in this documentation.
+    - Create the Linux partition in unused space if you have not already.  Either way, use the partition type for Linux root x86_64.  You can list known partition types in fdisk.
+2. `mkfs.ext4 /dev/nvme0n1p3` to format Linux partition. This destroys all data on the partition!  Your device name may vary, so double-check this before running.  It should warn you if there's an existing file system.  If you just created a new partition, there should not be an existing file system.
     - This assumes an `ext4` file system.  This is the most common, stable, and reliable file system for Linux.  However, there are better choices for an SSD, but they have some gotchas:
         - First some details about `ext4`.  It is a more traditional journaling file system similar in principle to Windows `NTFS`.  This means that write operations are first written to a journal and then to the actual file.  That way, if the write operation is interrupted, data is not lost or corrupted, because write operations can be replayed or rolled back from the journal.  Such file systems take advantage of the journal to enable snapshot functionality as well.  However, this does not play as well with SSD, because writes are spread across the disk and not necessarily aligned perfectly with flash blocks.  However, modern SSD drives do have the ability to transparently spread writes across the disk for the sake of longevity, so it may not be as big of an issue anymore.  In any case, Lenovo chose the SSD installed in this laptop with the intention of running Windows which uses such a file system, so I am not so worried about using `ext4`.
         - `btrfs` is an advanced copy-on-write file system.  The structure of writes allows features like snapshots and so forth without the need for journaling.  It has been around for quite some time, but still is not considered fully reliable.  It does have great tooling support, however.  Partitions can be grown and shrunk live.  It is also the default file system for openSUSE.
         - `f2fs` is also a copy-on-write file system, but it is specifically designed for SSDs.  It is considered more stable and reliable; for example, it is used on several Android smartphones.  However, the tooling support is not as great.  For example, at the time of writing this, there is no way to shrink an `f2fs` partition.  The data would have to be backed up into a different file system, then restored to a new `f2fs` partition of a smaller size by copying files.
-5. `mount /dev/nvme0n1p3 /mnt` to mount Linux partition.
-6. `mkdir /mnt/boot` to make empty directory for mounting EFI boot partition.
-7. `mount /dev/nvme0n1p1 /mnt/boot` to mount EFI boot partition.
+3. `mount /dev/nvme0n1p3 /mnt` to mount Linux partition.
+4. `mkdir /mnt/boot` to make empty directory for mounting EFI boot partition.
+5. `mount /dev/nvme0n1p1 /mnt/boot` to mount EFI boot partition.
 
 ### Actual Arch install
 
@@ -293,9 +294,9 @@ These instructions assume that you are either in `chroot` or booted directly int
 4. `pacman -S plasma` to install KDE Plasma.  Note that this is the package group rather than meta-package.  I prefer groups to meta-packages because individual components of groups can be uninstalled later without uninstalling the entire group.  Also, this actually only installs a stripped-down desktop environment with very few apps such as system settings; it does not even include a file manager, terminal emulator, text editor, or web browser.  There is an even more stripped down package called `plasma-desktop`; I'm not sure what the difference is, but I found `plasma` plenty lean enough.
 5. Optionally install "kde-applications".  This group will install the whole KDE application suite.  It most likely includes many apps that you don't need or won't use.  So basically decide whether you would like to start with a full-featured desktop and trim out apps from there or start with a super bare-bones system and install only the applications you want.
     - `pacman -S kde-applications` to install the full KDE app suite.
-    - If you don't install "kde-applications", install a terminal emulator such as "konsole".  Without this, you will have no way to configure the system or install software after you boot into the desktop.
-        1. `pacman -S konsole` installs Konsole.
-6. Reboot and log in to KDE Plasma
+6. If you don't install "kde-applications", install a terminal emulator such as "konsole".  Without this, you will have no way to configure the system or install software after you boot into the desktop.
+    - `pacman -S konsole` installs Konsole.
+7. Reboot and log in to KDE Plasma
     1. `exit` to exit chroot.
     2. `reboot` to reboot system.
     3. First run should launch SDDM, though it will look wonky compared to the KDE theme.
@@ -316,34 +317,38 @@ If there is no network/wifi icon in the icon tray, it may be because NetworkMana
 
 ### KDE Plasma theme
 
+I prefer a dark theme, because `dark > light`.  The default SDDM theme also does not match KDE's default theme.  Follow these instructions for a consistent dark theme.
+
 1. Set KDE Plasma theme
     1. Open `System Settings`
-    2. Navigate to `Appearance` -> `Look and Feel`
-    3. Choose `Breeze Dark`, because `dark > light`
+    2. Navigate to `Appearance` → `Look and Feel`
+    3. Choose `Breeze Dark`
 2. Set SDDM theme to match
     1. Open `System Settings`
-    2. Navigate to `Workspace` -> `Startup and Shutdown` -> `Login Screen (SDDM)`
+    2. Navigate to `Workspace` → `Startup and Shutdown` → `Login Screen (SDDM)`
     3. Click `Breeze`
     4. Click `Apply`
 3. Set GNOME/GTK application style to match.  This applies to apps that use the GTK toolkit such as Firefox.
     1. Open `System Settings`
-    2. Navigate to `Appearance` -> `Application Style` -> `GNOME/GTK Application Style`
+    2. Navigate to `Appearance` → `Application Style` → `GNOME/GTK Application Style`
     3. Change GTK2 theme to `Breeze-Dark`
     4. For GTK3 theme, use `Breeze-Dark` theme and tick the box `Prefer dark theme`.  I have found these settings to work the best.
     5. Under `Icon Themes` select `Breeze Dark` for `Icon theme` and `Fallback theme`.
     6. Click `Apply`.
 4. Set cursor theme
     1. Open `System Settings`
-    2. Navigate to `Appearance` -> `Workspace Theme` -> `Cursors`
+    2. Navigate to `Appearance` → `Workspace Theme` → `Cursors`
     3. Select `Adwaita`
-    4. Navigate to `Appearance` -> `Application Style` -> `GNOME/GTK Application Style`
+    4. Navigate to `Appearance` → `Application Style` → `GNOME/GTK Application Style`
     5. Under `Icon Themes` select `Cursor theme` `Adwaita` to match.
 
 ### Fix scaling
 
+My laptop has a 4k screen, so obviously scaling is necessary.  Scaling is a bit hit-or-miss when it comes to Linux, because of the many fragmented GUI toolkits.  However, my combination of Arch and KDE seemed to handle scaling well.  Still, there are some manual steps to get configure scaling and fix a few scaling issues.
+
 1. Set KDE Plasma display scaling.
     1. Open `System Settings`
-    2. Navigate to `Hardware` -> `Display and Monitor` -> `Displays`
+    2. Navigate to `Hardware` → `Display and Monitor` → `Displays`
     3. Click `Scale Display`
     4. Set the slider to 2.  (This equates to 200%.  On a 4k screen, that would make things the same size as a 1080p screen is normally.)
     5. Click `OK`
@@ -370,12 +375,12 @@ If there is no network/wifi icon in the icon tray, it may be because NetworkMana
 4. Fix mouse cursor scaling
     1. For the most part, the cursor scaling seems to work out of the box.  I did notice one instance where it was wrong: The cursor was tiny when hovering over title bars.  The following will make the scale consistent, but may prevent proper scaling of external monitors with different scales.
     2. Open `System Settings`
-    3. Navigate to `Appearance` -> `Workspace Theme` -> `Cursors`
+    3. Navigate to `Appearance` → `Workspace Theme` → `Cursors`
     4. Select a `Size` of `48, or whichever size you prefer instead of `Resolution dependent`.
 
 ### Set up package manager GUI and AUR
 
-I'm thinking this is a tremendous oversight, but all known AUR helpers are installed via AUR...  This is a catch-22; before you can install any AUR packages with an AUR helper, you have to install an AUR helper manually.
+I'm thinking this is a tremendous oversight, but all known AUR helpers are installed via AUR...  This is a catch-22; before you can install any AUR packages with an AUR helper, you have to install an AUR helper manually.  Fortunately, AUR helpers appear to be able to bootstrap themselves and manage updates to their own AUR package once installed.
 
 There are a number of options, but I am going with `pamac`.  It comes from Manjaro, and it is specifically designed for Arch, supporting pacman and AUR directly.  It has a nice tray icon for updates as well.
 
@@ -398,6 +403,8 @@ There are a number of options, but I am going with `pamac`.  It comes from Manja
 
 ### Start with Numlock on
 
+By default, the computer is started with Numlock off.  Both SDDM and KDE Plasma can be configured to turn on Numlock when they start.  SDDM starts first, so it makes sense to configure that.
+
 1. Configure SDDM to activate Numlock
     1. Create the file `/env/sddm.conf.d/numlock.conf` with the following content:
         ```
@@ -406,19 +413,21 @@ There are a number of options, but I am going with `pamac`.  It comes from Manja
         ```
 2. Since SDDM loads before KDE Plasma, it is not necessary to configure KDE to activate Numlock.  But if you want to anyway, it's easy:
     1. Open `System Settings`
-    2. Navigate to `Hardware` -> `Input Devices` -> `Keyboard`
+    2. Navigate to `Hardware` → `Input Devices` → `Keyboard`
     3. Under `NumLock on Plasma Startup`, tick `Turn on`
 
 ### Change screen off delay
 
+KDE's default timeout for dimming and turning off the screen is really short, and it gets very annoying.  Here's how to fix it.
+
 1. Change lock screen delay
     1. Open `System Settings`
-    2. Navigate to `Workspace` -> `Desktop Behavior` -> `Screen Locking`
+    2. Navigate to `Workspace` → `Desktop Behavior` → `Screen Locking`
     3. Enter a more sensible lock screen delay, like 15 minutes.
     4. Click `Apply`
 2. Change power settings for the display
     1. Open `System Settings`
-    2. Navigate to `Hardware` -> `Power Management` -> `Energy Saving`
+    2. Navigate to `Hardware` → `Power Management` → `Energy Saving`
     3. Change settings for each power mode to your liking.  Here's what I use:
         - Screen brightness on Low Battery (default)
         - Dim screen after 9 minutes for all power modes (default is 2 minutes which is way too short)
@@ -464,19 +473,19 @@ To get DejaVu Sans Mono in there, we need to convert it.
     1. `pacman -S fontforge` to install needed package; or use the pamac GUI if you prefer.
     2. `pamac build bdf2psf` to install needed AUR package; or use the pamac GUI if you prefer.
     3. Download the fonts in source form (SFD) for FontForge from https://dejavu-fonts.github.io/Download.html
-2. You may open the TrueType font installed at `/usr/share/fonts/TTF/DejaVuSansMono.ttf` instead, but it is better to use the source form.
-    1. Convert the font to BDF format using FontForge.
-    2. Open `DejaVuSansMono.sfd` in FontForge.
-    3. `Element` -> `Bitmap Strikes Available...`
-    4. Enter `32` for the `Pixel Sizes` (this is the largest size supported by `setfont`).
-    5. Click `OK`
-    6. `File` -> `Generate Fonts...`
-    7. Select `No Outline Font` in the left format drop-down box.
-    8. Select `BDF` in the right format drop-down box.
-    9. Make sure `32` is entered in the text box underneath `BDF`.
-    10. Choose where you want to save it and the filename.  It will automatically append `-32` to the filename before the extension to what you enter here.
-    11. Click `Generate`.
-    12. The BDF resolution probably doesn't matter... just click `OK`.
+        - You may open the TrueType font installed at `/usr/share/fonts/TTF/DejaVuSansMono.ttf` instead, but it is better to use the source form.
+2. Convert the font to BDF format using FontForge.
+    1. Open `DejaVuSansMono.sfd` in FontForge.
+    2. `Element` → `Bitmap Strikes Available...`
+    3. Enter `32` for the `Pixel Sizes` (this is the largest size supported by `setfont`).
+    4. Click `OK`
+    5. `File` → `Generate Fonts...`
+    6. Select `No Outline Font` in the left format drop-down box.
+    7. Select `BDF` in the right format drop-down box.
+    8. Make sure `32` is entered in the text box underneath `BDF`.
+    9. Choose where you want to save it and the filename.  It will automatically append `-32` to the filename before the extension to what you enter here.
+    10. Click `Generate`.
+    11. The BDF resolution probably doesn't matter... just click `OK`.
 3. Convert the font to PSF format.
     1. Go to a temporary directory such as `/tmp` in a terminal emulator.
     2. Copy the BDF file you created earlier to the current directory.
@@ -501,7 +510,7 @@ The settings in the KDE Plasma System Settings app have no effect.  You have to 
 ### Customize KDE Plasma desktop session
 
 1. Open `System Settings`
-2. Navigate to `Workspace` -> `Startup and Shutdown` -> `Desktop Session`
+2. Navigate to `Workspace` → `Startup and Shutdown` → `Desktop Session`
 3. Under `On login`, tick `Start with an empty session` if you don't want applications restored after restart.
 4. Under `General` untick `Confirm logout` to avoid the prompt when selecting logout, shut down, restart, etc.
 5. Click `Apply`.
@@ -611,10 +620,10 @@ Part of the problem seems to be that the most popular fonts are proprietary Micr
 1. `sudo pacman -S ttf-liberation` - I think this is the font pack preferred by LibreOffice.
 2. `sudo pacman -S ttf-dejavu` - This pack includes my monospace font of choice for programming: DejaVu Sans Mono`
 
-While we're at this, maybe make DejaVuSansMono the default fixed width font?
+While we're at this, maybe make DejaVuSansMono the default fixed width font:
 
 1. Open `System Settings`
-2. Navigate to `Appearance` -> `Fonts` -> `Fonts`
+2. Navigate to `Appearance` → `Fonts` → `Fonts`
 3. Change fixed width font to DejaVu Sans Mono 9pt.
 
 ### Install common desktop applications
@@ -623,9 +632,9 @@ If you installed the `kde-applications` package, you already have a ton of appli
     - Dolphin is the default for KDE, and it's pretty nice.
         - How to switch to double-click for opening files and folders:
             1. Open `System Settings`
-            2. Navigate to `Workspace` -> `Desktop Behavior`
+            2. Navigate to `Workspace` → `Desktop Behavior`
             3. Tick `Double-click to open files and folders`
-            4. Show hidden files and folders:
+        - Show hidden files and folders:
             5. Click `Control` button
             6. Click `Adjust View Properties...`
             7. Tick `Show hidden files`
@@ -649,8 +658,8 @@ If you installed the `kde-applications` package, you already have a ton of appli
         - Scaling worked for me out of the box now for `libreoffice-still`.
         - The icons did not show up properly for dark theme in my case.
             1. Open any LibreOffice app.
-            2. Go to `Tools` -> `Options`.
-            3. Go to `LibreOffice` -> `View`.
+            2. Go to `Tools` → `Options`.
+            3. Go to `LibreOffice` → `View`.
             4. Under `Icon style` select `Breeze (dark)`.
             5. Click `OK`.
 - Video player
@@ -733,8 +742,8 @@ By default, it seems like there is more precision in the brightness at the highe
     - In this repository, [brightness-down.sh](../src/brightness-down.sh) and [brightness-up.sh](../src/brightness-up.sh) simply execute [brightness.sh](../src/brightness.sh) with a different parameter.
     - At first, I tried equal size steps, but that did not give good results.  It is now a hybrid approach which adds or subtracts 10% each time, but uses a minimum step size of 1/200 at the lower levels.  This gave higher precision at lower levels and a nice exponential progression at higher levels.
 2. Open `System Settings`.
-3. Navigate to `Workspace` -> `Shortcuts` -> `Custom Shortcuts`.
-4. `Edit` -> `New` -> `Global Shortcut` -> `Command/URL`.
+3. Navigate to `Workspace` → `Shortcuts` → `Custom Shortcuts`.
+4. `Edit` → `New` → `Global Shortcut` → `Command/URL`.
 5. Give it a name.
 6. In the `Trigger` tab, click the `Shortcut` button and then press the button you want to use for the shortcut.
     -  In order to map the screen brightness hotkeys, since I have hotkey mode disabled, I had to press `Fn` and the screen brightness key at almost the exact same time.  Otherwise, just pressing `Fn` was enough for it to detect a different shortcut.
@@ -746,6 +755,28 @@ Repeat for the other screen brightness key.
 ### SSH
 
 Surprisingly, Arch Linux does not come with an SSH client.  Install `openssh`.
+
+To generate a new key:
+
+- Best: `ssh-keygen -t ed25519`
+- Fallback: `ssh-keygen -b 4096` (RSA)
+
+Different keys for different hosts:
+
+- Edit `~/.ssh/config`:
+    ```
+    Host SERVER1
+        IdentitiesOnly yes
+        IdentityFile ~/.ssh/id_rsa_SERVER1
+
+    Host SERVER2
+        IdentitiesOnly yes
+        IdentityFile ~/.ssh/id_ed25519_SERVER2
+    ```
+
+To add a known host:
+
+- Easiest way is probably `ssh user@host.com`.  If you choose `yes`, it will save the known host.  Also doubles as a way to check that the connection will work.
 
 ## Later
 

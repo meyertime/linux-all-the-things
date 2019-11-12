@@ -6,6 +6,8 @@ tl;dr: I used mainly Windows for a long time, not because I liked it, but becaus
 
 - [Arch Linux on Lenovo 720S-15IKB](docs/arch-lenovo720s.md)
 - [Arch Linux ARM](docs/arch-arm.md)
+- [Other applications on Arch Linx](docs/arch-other-apps.md)
+- [Descent on Arch Linux](docs/arch-descent.md)
 
 ## More info
 

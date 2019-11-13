@@ -8,6 +8,7 @@ tl;dr: I used mainly Windows for a long time, not because I liked it, but becaus
 - [Arch Linux ARM](docs/arch-arm.md)
 - [Other applications on Arch Linx](docs/arch-other-apps.md)
 - [Descent on Arch Linux](docs/arch-descent.md)
+- [Palo Alto GlobalProtect VPN with Okta authentication](docs/arch-pan-okta.md)
 
 ## More info
 

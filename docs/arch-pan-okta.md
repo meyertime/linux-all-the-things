@@ -108,10 +108,11 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
     1. Unfortunately, this is the only way I found to hook into the connection process.  It means that updates to `openconnect` may potentially break things.  A better solution would probably be to enhance the [openconnect plugin for Network Manager](https://github.com/GNOME/NetworkManager-openconnect) to support Okta / SAML authentication.
     2. Note that this will also affect any use of openconnect anywhere anytime.  In my case, this is the only thing I am using openconnect for anyway, so it doesn't matter to me.
     3. Rename `/usr/bin/openconnect` to `openconnect.real`.
-    4. Create the wrapper script file `/usr/bin/openconnect.wrapper`.
-        - TODO: Include said script content.
+    4. Create the wrapper script file `/usr/bin/openconnect.wrapper.sh`.
+        - In this repository, [openconnect.wrapper.sh](../src/openconnect.wrapper.sh) is provided.  It takes parameters and standard input from the Network Manager plugin, runs `gp-okta.py`, does some processing, and runs `openconnect.real` with the correct arguments.  It also traps signals and passes them on to openconnect so that it will terminate properly.
+        - Make sure it has execute permissions.
     5. Create a symbolic link to the wrapper script.
-        1. `ln -s /usr/bin/openconnect.wrapper /usr/bin/openconnect`
+        1. `ln -s /usr/bin/openconnect.wrapper.sh /usr/bin/openconnect`
 11. The wrapper script uses `kdialog` to prompt for the password.
     1. Install the `kdialog` package.
     2. `xhost +si:localuser:nm-openconnect` to grant access to the local `nm-openconnect` user to use the X window system.

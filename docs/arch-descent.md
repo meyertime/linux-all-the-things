@@ -37,9 +37,9 @@ Setup `ps3pie` if you wish to use the PS3 controller.
 3. Install ps3pie.
     1. `npm i -g https://github.com/meyertime/ps3pie.git`
 4. Fix hidraw permissions.
-    1. Follow the instructions at [https://github.com/meyertime/ps3pie]().
+    1. Follow the instructions at https://github.com/meyertime/ps3pie.
 5. Fix uinput permissions.
-    1. Follow the instructions at [https://github.com/meyertime/ps3pie]().
+    1. Follow the instructions at https://github.com/meyertime/ps3pie.
 
 ## Automate some things
 

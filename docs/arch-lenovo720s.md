@@ -729,6 +729,8 @@ Windows compatibility layer is handy for running some Windows apps without the h
 
 - exFAT
     1. Install `exfat-utils`.
+- FAT32
+    1. Install `dosfstools`.
 - f2fs
     1. Install `f2fs-tools`.
 

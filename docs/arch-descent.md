@@ -10,7 +10,7 @@ My preferred Descent port is dxx-rebirth.
     - I have also had it get stuck in the middle of installing.  Even after cancelling, it won’t install packages because it thinks there’s another package manager running.  In that case, remove the file `/var/lib/pacman/db.lck`.
 2. Make a rule to disable compositing while Descent is open.  This improves video performance.
     1. Open `System Settings`.
-    2. Navigate to `Workspace` -> `Window Management` -> `Window Rules`.
+    2. Navigate to `Workspace` → `Window Management` → `Window Rules`.
     3. Click `New...`
     4. Enter the description `Descent`.
     5. Select only `Normal Window`.
@@ -35,7 +35,11 @@ Setup `ps3pie` if you wish to use the PS3 controller.
 2. Install `python2`.  This is needed by the `ioctl` dependency.
     1. `sudo pacman -S python2`
 3. Install ps3pie.
-        1. `npm i -g https://github.com/meyertime/ps3pie.git`
+    1. `npm i -g https://github.com/meyertime/ps3pie.git`
+4. Fix hidraw permissions.
+    1. Follow the instructions at [https://github.com/meyertime/ps3pie]().
+5. Fix uinput permissions.
+    1. Follow the instructions at [https://github.com/meyertime/ps3pie]().
 
 ## Automate some things
 

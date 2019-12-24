@@ -306,6 +306,15 @@ These instructions assume that you are either in `chroot` or booted directly int
 
 The following steps can be done in any order.
 
+### Install Linux LTS kernel
+
+Sometimes the latest kernel may break things.  For example, I have had my touchpad randomly stop working.  It's useful to be able to boot to the LTS kernel in that case.
+
+1. `sudo pacman -S linux-lts`
+2. `sudo grub-mkconfig -o /etc/grub/grub.cfg`
+
+You can now access the LTS kernel in the boot menu under advanced options.
+
 ### Fix network/wifi
 
 If there is no network/wifi icon in the icon tray, it may be because NetworkManager is not started.
@@ -627,7 +636,9 @@ While we're at this, maybe make DejaVuSansMono the default fixed width font:
 3. Change fixed width font to DejaVu Sans Mono 9pt.
 
 ### Install common desktop applications
+
 If you installed the `kde-applications` package, you already have a ton of applications.  If not, you will want some common applications such as a file manager, web browser, calculator, etc.  At this point, you can use the pamac GUI to search and install the apps, so I won't show the pacman commands.
+
 - File manager
     - Dolphin is the default for KDE, and it's pretty nice.
         - How to switch to double-click for opening files and folders:
@@ -664,6 +675,10 @@ If you installed the `kde-applications` package, you already have a ton of appli
             5. Click `OK`.
 - Video player
     - VLC
+- Image viewer
+    - Gwenview
+- Image editor
+    - GIMP
 
 ### Fingerprint reader
 
@@ -811,3 +826,19 @@ I ran into those issues the one time I updated the firmware, so I do not know fo
     2. Change any other settings to your preference.
     3. Save and exit.
 8. Boot into Linux.
+
+### Downgrading packages
+
+I am not going to cover downgrading in general very thoroughly at this time.  The main reason I needed to do this was to downgrade the Linux kernel because it broke my touchpad.  Note that this was the default `linux` kernel which is pretty bleeding-edge, not `linux-lts`.  However, `linux-lts` broke Bluetooth.  I wish there was something in between, but oh well.
+
+There is more than one way to do this, but at this point, I am going to cover using the pacman cache.
+
+1. Go to the pacman cache directory: `/var/cache/pacman/pkg/`
+2. Identify the package or packages you wish to downgrade.
+    - `ls -ltr` will list them from oldest to newest.  It's convenient for figuring out which versions were used when it was working.
+    - `ls linux* -ltr`, for example, to search specific package names.
+    - For downgrading the Linux kernel, the Arch wiki recommends `linux`, `linux-headers`, and "any kernel modules".
+3. `sudo pacman -U package-old_version.pkg.tar.xz`
+4. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
+    1. Locate the line that begins with `IgnorePkg=` which may be commented out.
+    2. Change it to reflect your desired ignore list, uncommenting if necessary.  Multiple packages are separated by spaces.  Glob patterns may also be used.

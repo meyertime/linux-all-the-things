@@ -829,9 +829,9 @@ I ran into those issues the one time I updated the firmware, so I do not know fo
 
 ### Downgrading packages
 
-I am not going to cover downgrading in general very thoroughly at this time.  The main reason I needed to do this was to downgrade the Linux kernel because it broke my touchpad.  Note that this was the default `linux` kernel which is pretty bleeding-edge, not `linux-lts`.  However, `linux-lts` broke Bluetooth.  I wish there was something in between, but oh well.
+I am not going to cover downgrading in general very thoroughly at this time.  The main reason I needed to do this was to downgrade the Linux kernel because version 5.4 broke my touchpad.  Note that this was the default `linux` kernel which is pretty bleeding-edge, not `linux-lts`.  However, `linux-lts` broke Bluetooth.  I wish there was something in between, but oh well.
 
-There is more than one way to do this, but at this point, I am going to cover using the pacman cache.
+#### Manually using the pacman cache
 
 1. Go to the pacman cache directory: `/var/cache/pacman/pkg/`
 2. Identify the package or packages you wish to downgrade.
@@ -839,6 +839,17 @@ There is more than one way to do this, but at this point, I am going to cover us
     - `ls linux* -ltr`, for example, to search specific package names.
     - For downgrading the Linux kernel, the Arch wiki recommends `linux`, `linux-headers`, and "any kernel modules".
 3. `sudo pacman -U package-old_version.pkg.tar.xz`
-4. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
+
+#### The easy way
+
+1. Install the `downgrade` AUR package.
+2. `downgrade linux`, for example, to downgrade the `linux` package.
+    1. It will list available versions from the Arch Linux Archive (remote) and the pacman cache (local).
+    2. Select the version to downgrade to.
+    3. It will automatically elevate to root when needed.
+
+#### Prevent upgrades
+
+1. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
     1. Locate the line that begins with `IgnorePkg=` which may be commented out.
     2. Change it to reflect your desired ignore list, uncommenting if necessary.  Multiple packages are separated by spaces.  Glob patterns may also be used.

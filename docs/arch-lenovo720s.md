@@ -853,3 +853,20 @@ I am not going to cover downgrading in general very thoroughly at this time.  Th
 1. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
     1. Locate the line that begins with `IgnorePkg=` which may be commented out.
     2. Change it to reflect your desired ignore list, uncommenting if necessary.  Multiple packages are separated by spaces.  Glob patterns may also be used.
+
+### Rename "Basic data partition"
+
+Sometimes in Dolphin file manager, I need to go to the root of the file system.  By default, this shows up as `Basic data partition` under `Devices`, which is not very clear.  I would rather it say something like `Root`.  How do we change it?
+
+Well, it's actually using the partition name here, which by default is `Basic data partition`.  You can change it with `fdisk`.  As always, when working with disk partitions, be very careful, because you can completely wreck your system and lose data.
+
+1. `sudo fdisk /dev/nvme0n1`, or whatever device the partition you want to rename is on.
+    1. Inside `fdisk`, use the `x` command to enter the expert menu.
+    2. `p` to print the partition table.  In expert mode, it will show additional information including the name of each partition.  It's a bit hard to read unless the terminal window is really wide, however.  In any case, find out which partition number you want to rename.
+    3. `n` to rename a partition.
+    4. Enter the number of the partition you wish to rename.
+    5. Enter the new name; for example, `Root`.
+    6. `p` again to verify the changes are correct.
+    7. `r` to return to the main menu.
+    8. `w` to write the partition table to disk and quit.
+2. Restart Dolphin or whichever file manager you use to see the changes.

@@ -328,6 +328,8 @@ Unfortunately, this is not straight-forward.  I did figure out a rather hacky wa
 2. Copy [01_custom_lib](../src/grub/01_custom_lib) to `/etc/grub.d/`.
     - This file replaces the real `grub-mkconfig_lib` with the custom wrapper.  It first makes a copy of the real library named `grub-mkconfig_lib.orig` so that the wrapper can import the real library.  If the real library is replaced for any reason with one that is not the custom wrapper, such as by updating the grub package, it will update the `grub-mkconfig_lib.orig`.  It will also update `grub-mkconfig_lib` with a newer version of the custom wrapper if one is written to `/usr/share/grub-custom/grub-mkconfig_lib`.
     - This file must have a number less than 10 so that it is executed before `10_linux`, which is where the linux entries in the boot menu are generated.  I suppose, technically, it could be `10_custom_lib` because it would still come before `10_linux` alphabetically, but it's safer to choose a lower number.  Plus the in-between numbers are specifically for system installers or administrators as mentioned in the `README` in the same directory, so `01` seemed like a natural choice.
+3. `sudo grub-mkconfig 2>/dev/null` to generate a new `grub.cfg` and print it to stdout.  Check the output to be sure it is right.  Omit the `2>/dev/null` part if you want to see stderr output as well.
+4. `sudo grub-mkconfig -o /boot/grub/grub.cfg` to generate a new config and save it.
 
 #### Change default entry and/or flatten
 

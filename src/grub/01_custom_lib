@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+real="$pkgdatadir/grub-mkconfig_lib"
+orig="$pkgdatadir/grub-mkconfig_lib.orig"
+custom="$pkgdatadir-custom/grub-mkconfig_lib"
+
+if [ "$(head -1 "$real")" != "### CUSTOM" ]; then
+    rm -f "$orig"
+    mv "$real" "$orig"
+fi
+
+cp -u "$custom" "$real"

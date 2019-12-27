@@ -315,6 +315,34 @@ Sometimes the latest kernel may break things.  For example, I have had my touchp
 
 You can now access the LTS kernel in the boot menu under advanced options.
 
+Arch/GRUB currently has what some consider to be a bug where it treats `linux-lts` as if it were newer than `linux` and puts it higher in the boot menu, thus selecting it by default.  Most people who have both kernels installed intend `linux-lts` as a safe backup and want `linux` to be the default, however.  Here are a couple workarounds:
+
+#### Change order of boot menu
+
+Unfortunately, this is not straight-forward.  I did figure out a rather hacky way.  It involves overriding a function defined in `/usr/share/grub/grub-mkconfig_lib`.  To do this, I added a wrapper at `/usr/share/grub-custom/grub-mkconfig_lib` that imports the real library and overrides the one function, and a script in `/etc/grub.d/` that overwrites the original library with this wrapper.  It is designed so that updates to the grub packages should not break the fix.
+
+1. Create the directory `/usr/share/grub-custom` and copy [grub-mkconfig_lib](../src/grub/grub-mkconfig_lib) to it.
+    - This file is designed to be used in place of the real `grub-mkconfig_lib`.  It imports the real library and then overrides a defined in it.
+    - It overrides `version_test_gt` which tests whether or not one version is greater than another.
+    - The problem has to do with the fact that the versions come up as `linux` and `linux-lts` and do not include the actual kernel version numbers.  In that case, it sorts them alphabetically, in which case `linux` would come before `linux-lts`, or be considered "less than".  In reality, `linux` is always greater than `linux-lts` in terms of kernel version.  To correct this, I simply replace an ending of `linux` with `linux-zzz` which should make it greater than any other `linux-` kernel.
+2. Copy [01_custom_lib](../src/grub/01_custom_lib) to `/etc/grub.d/`.
+    - This file replaces the real `grub-mkconfig_lib` with the custom wrapper.  It first makes a copy of the real library named `grub-mkconfig_lib.orig` so that the wrapper can import the real library.  If the real library is replaced for any reason with one that is not the custom wrapper, such as by updating the grub package, it will update the `grub-mkconfig_lib.orig`.  It will also update `grub-mkconfig_lib` with a newer version of the custom wrapper if one is written to `/usr/share/grub-custom/grub-mkconfig_lib`.
+    - This file must have a number less than 10 so that it is executed before `10_linux`, which is where the linux entries in the boot menu are generated.  I suppose, technically, it could be `10_custom_lib` because it would still come before `10_linux` alphabetically, but it's safer to choose a lower number.  Plus the in-between numbers are specifically for system installers or administrators as mentioned in the `README` in the same directory, so `01` seemed like a natural choice.
+
+#### Change default entry and/or flatten
+
+A simpler solution is to change the default boot entry.  The entries will still appear out of order, but at least the correct default will be used.
+
+Whether or not you change the default, you may also want to flatten the boot menu.  If you do, the boot menu entries under the `Advanced` submenu will appear simply in the top menu instead.  There will be no main entry for Arch Linux in the top menu anymore.  This entry is apparently always equivalent to the first entry in the `Advanced` submenu.  There does not appear to be a way to change this, which is why changing the default without flattening the menu may not be desirable.  In that case, the main Arch Linux entry at the top is basically useless, and you would still have to press `Enter` twice to select the default instead of waiting for the timeout.  Finally, even if you do change the order of the boot menu, you may still prefer to flatten the menu, especially since there is probably plenty of room on the screen to do so.
+
+1. Edit the file `/etc/default/grub`.
+    1. Add a section at the end for custom values.  I like to do this, anyway, to keep them separate from the defaults.
+    2. To flatten the boot menu, add `GRUB_DISABLE_SUBMENU=y`.
+    3. To change the default menu entry, add `GRUB_DEFAULT='gnu-linux-advanced-01234567-89ab-cdef-0123-456789abcdef', for example.
+        - To find the ID of the menu entry that you want to set as default, look in `/boot/grub/grub.cfg`.
+2. `sudo grub-mkconfig 2>/dev/null` to generate a new `grub.cfg` and print it to stdout.  Check the output to be sure it is right.  Omit the `2>/dev/null` part if you want to see stderr output as well.
+3. `sudo grub-mkconfig -o /boot/grub/grub.cfg` to generate a new config and save it.
+
 ### Fix network/wifi
 
 If there is no network/wifi icon in the icon tray, it may be because NetworkManager is not started.

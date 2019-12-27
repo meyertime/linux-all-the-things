@@ -1,0 +1,20 @@
+### CUSTOM
+
+# Import the real lib
+. $pkgdatadir/grub-mkconfig_lib.orig
+
+# Redefine the original function using a different name so that we can still access it
+version_test_gt_def=$(declare -f version_test_gt)
+eval "version_test_gt_orig${version_test_gt_def#version_test_gt}"
+
+# Override the function
+version_test_gt ()
+{
+    # Special case puts "linux" kernel alphabetically greater than any "linux-" variants
+    version_test_gt_a="`echo "$1" | sed -e "s/linux$/linux-zzz/"`"
+    version_test_gt_b="`echo "$2" | sed -e "s/linux$/linux-zzz/"`"
+
+    # Call the original function
+    version_test_gt_orig "$version_test_gt_a" "$version_test_gt_b"
+    return "$?"
+}

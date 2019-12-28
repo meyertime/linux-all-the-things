@@ -362,24 +362,27 @@ I prefer a dark theme, because `dark > light`.  The default SDDM theme also does
     1. Open `System Settings`
     2. Navigate to `Appearance` → `Look and Feel`
     3. Choose `Breeze Dark`
-2. Set SDDM theme to match
-    1. Open `System Settings`
-    2. Navigate to `Workspace` → `Startup and Shutdown` → `Login Screen (SDDM)`
-    3. Click `Breeze`
-    4. Click `Apply`
-3. Set GNOME/GTK application style to match.  This applies to apps that use the GTK toolkit such as Firefox.
+2. Set GNOME/GTK application style to match.  This applies to apps that use the GTK toolkit such as Firefox.
     1. Open `System Settings`
     2. Navigate to `Appearance` → `Application Style` → `GNOME/GTK Application Style`
     3. Change GTK2 theme to `Breeze-Dark`
     4. For GTK3 theme, use `Breeze-Dark` theme and tick the box `Prefer dark theme`.  I have found these settings to work the best.
     5. Under `Icon Themes` select `Breeze Dark` for `Icon theme` and `Fallback theme`.
     6. Click `Apply`.
-4. Set cursor theme
+3. Set cursor theme
     1. Open `System Settings`
     2. Navigate to `Appearance` → `Workspace Theme` → `Cursors`
     3. Select `Adwaita`
     4. Navigate to `Appearance` → `Application Style` → `GNOME/GTK Application Style`
     5. Under `Icon Themes` select `Cursor theme` `Adwaita` to match.
+2. Set SDDM theme to match
+    1. Open `System Settings`
+    2. Navigate to `Workspace` → `Startup and Shutdown` → `Login Screen (SDDM)`
+    3. Click `Breeze`
+    4. Click `Apply`
+    5. Click `Advanced` tab
+    6. Click `Sync`
+        - This will sync other settings besides the theme including NumLock and scaling.
 
 ### Fix scaling
 
@@ -393,12 +396,18 @@ My laptop has a 4k screen, so obviously scaling is necessary.  Scaling is a bit 
     5. Click `OK`
     6. Reboot to apply changes
 2. Enable SDDM scaling.  This fixes scaling for the login screen.
-    1. Create the file `/etc/sddm.conf.d/dpi.conf` with the following content:
-        ```
-        [X11]
-        ServerArguments=-dpi 192
-        ```
-        - 192 should be equivalent to 200%.
+    - This can be done automatically to match KDE Plasma scaling:
+        1. Open `System Settings`
+        2. Navigate to `Workspace` → `Startup and Shutdown` → `Login Screen (SDDM)`
+        3. Click `Advanced` tab
+        4. Click `Sync`
+    - Or, to do it manually:
+        1. Create the file `/etc/sddm.conf.d/dpi.conf` with the following content:
+            ```
+            [X11]
+            ServerArguments=-dpi 192
+            ```
+            - 192 should be equivalent to 200%.
 3. Fix taskbar scaling.
     1. Fix icon tray scaling.
         1. Set the environment variable `PLASMA_USE_QT_SCALING=1`.  See the heading on how to change environment variables.
@@ -442,7 +451,21 @@ There are a number of options, but I am going with `pamac`.  It comes from Manja
 
 ### Start with Numlock on
 
-By default, the computer is started with Numlock off.  Both SDDM and KDE Plasma can be configured to turn on Numlock when they start.  SDDM starts first, so it makes sense to configure that.
+By default, the computer is started with Numlock off.
+
+There are two ways to go about this.  First, you can configure KDE's Numlock setting and sync that th SDDM.  This is useful if you are syncing other settings to SDDM.
+
+1. Configure KDE's Numlock setting
+    1. Open `System Settings`
+    2. Navigate to `Hardware` → `Input Devices` → `Keyboard`
+    3. Under `NumLock on Plasma Startup`, tick `Turn on`
+2. Sync SDDM settings
+    1. Open `System Settings`
+    2. Navigate to `Workspace` → `Startup and Shutdown` → `Login Screen (SDDM)`
+    3. Click `Advanced` tab
+    4. Click `Sync`
+
+Or, you can do it the manual way.  SDDM starts before KDE Plasma, so it makes sense to configure that to activate Numlock while configuring KDE Plasma to leave the Numlock setting alone.
 
 1. Configure SDDM to activate Numlock
     1. Create the file `/env/sddm.conf.d/numlock.conf` with the following content:
@@ -450,10 +473,10 @@ By default, the computer is started with Numlock off.  Both SDDM and KDE Plasma 
         [General]
         Numlock=on
         ```
-2. Since SDDM loads before KDE Plasma, it is not necessary to configure KDE to activate Numlock.  But if you want to anyway, it's easy:
+2. Configure KDE Plasma to leave Numlock setting alone
     1. Open `System Settings`
     2. Navigate to `Hardware` → `Input Devices` → `Keyboard`
-    3. Under `NumLock on Plasma Startup`, tick `Turn on`
+    3. Under `NumLock on Plasma Startup`, tick `Leave unchanged`
 
 ### Change screen off delay
 
@@ -461,7 +484,7 @@ KDE's default timeout for dimming and turning off the screen is really short, an
 
 1. Change lock screen delay
     1. Open `System Settings`
-    2. Navigate to `Workspace` → `Desktop Behavior` → `Screen Locking`
+    2. Navigate to `Workspace` → `Workspace Behavior` → `Screen Locking`
     3. Enter a more sensible lock screen delay, like 15 minutes.
     4. Click `Apply`
 2. Change power settings for the display
@@ -489,7 +512,7 @@ First, we need to change it at the grub level.  Grub uses bitmap fonts, so we ca
 
 Second, we need to change the Linux console font.  This applies after grub starts Arch.  The Linux console only supports PSF fonts.  Easier solution is to use the Terminus font:
 
-1. `pacman -S terminus-font`
+1. `sudo pacman -S terminus-font`
 2. Edit or create `/etc/vconsole.conf` and add the line:
     ```
     FONT=ter-d32n
@@ -503,7 +526,7 @@ Second, we need to change the Linux console font.  This applies after grub start
         ```
         HOOKS=(base udev autodetect modconf block filesystems keyboard consolefont fsck)
         ```
-4. `mkinitcpio -P`
+4. `sudo mkinitcpio -P`
     - Note this will regenerate all images and may break the system.  There is a way to test it first, but I don't know how yet.
 
 To get DejaVu Sans Mono in there, we need to convert it.
@@ -571,9 +594,10 @@ I opted for a swap file instead of a swap partition.  Swap partitions are fixed 
     2. Set `swapfc_force_preallocated=1`.
         - This is necessary if you see `WARN: swapFC: ENOSPC` in the log, which happened in my case.
     3. Set other values as desired; for example, `swapfc_max_count` according to desired max size.  For example, 32 x 512M would equal 16GB.
-5. `systemctl start systemd-swap.service` to start the service.
-6. `systemctl enable systemd-swap.service` to enable the service.
-7. Check settings before and after reboot.
+5. `systemctl stop systemd-swap.service` to stop the service if it is already running.
+6. `systemctl start systemd-swap.service` to start the service.
+7. `systemctl enable systemd-swap.service` to enable the service.
+8. Check settings before and after reboot.
     1. `cat /sys/fs/cgroup/memory/memory.swappiness` should show swappiness value of `0`.
     2. `swapon` should show swap files being used.
 
@@ -664,6 +688,7 @@ While we're at this, maybe make DejaVuSansMono the default fixed width font:
 1. Open `System Settings`
 2. Navigate to `Appearance` → `Fonts` → `Fonts`
 3. Change fixed width font to DejaVu Sans Mono 9pt.
+4. Click `Apply`
 
 ### Install common desktop applications
 
@@ -673,13 +698,15 @@ If you installed the `kde-applications` package, you already have a ton of appli
     - Dolphin is the default for KDE, and it's pretty nice.
         - How to switch to double-click for opening files and folders:
             1. Open `System Settings`
-            2. Navigate to `Workspace` → `Desktop Behavior`
+            2. Navigate to `Workspace` → `Workspace Behavior` → `General Behavior`
             3. Tick `Double-click to open files and folders`
         - Show hidden files and folders:
-            5. Click `Control` button
-            6. Click `Adjust View Properties...`
-            7. Tick `Show hidden files`
-            8. Click `OK`
+            1. Click the menu button in Dolphin
+            2. Click `Adjust View Properties...`
+            3. Tick `Show hidden files`
+            4. Click `OK`
+        - Adjust icon size
+            1. The slider at the bottom of the Dolphin window and about the middle actually controls the icon size.  Slide it all the way to the left for a nice compact layout.
 - Archive manager
     - Ark
 - Web browser
@@ -692,7 +719,7 @@ If you installed the `kde-applications` package, you already have a ton of appli
 - Text editor
     - Visual Studio Code
         - Yeah, it's more for programming than just text editing, but it makes a good text editor too.
-        - There is a known issue with the `code` package where elevating permissions to save files with root access does not work.  The workaround is to use the AUR package `visual-studio-code-aur` instead.  See https://github.com/Microsoft/vscode/issues/70403
+        - There is a known issue with the `code` package where elevating permissions to save files with root access does not work.  The workaround is to use the AUR package `visual-studio-code-bin` instead.  See https://github.com/Microsoft/vscode/issues/70403
 - Office suite
     - LibreOffice
         - Install `libreoffice-still` for stable or `libreoffice-fresh` for latest.
@@ -778,6 +805,8 @@ Windows compatibility layer is handy for running some Windows apps without the h
     1. Install `dosfstools`.
 - f2fs
     1. Install `f2fs-tools`.
+- NTFS
+    1. Install `ntfs-3g`.
 
 ### Screen brightness
 
@@ -788,6 +817,7 @@ By default, it seems like there is more precision in the brightness at the highe
 1. Write two bash scripts--one to turn down the brightness and the other to turn it up.
     - In this repository, [brightness-down.sh](../src/brightness-down.sh) and [brightness-up.sh](../src/brightness-up.sh) simply execute [brightness.sh](../src/brightness.sh) with a different parameter.
     - At first, I tried equal size steps, but that did not give good results.  It is now a hybrid approach which adds or subtracts 10% each time, but uses a minimum step size of 1/200 at the lower levels.  This gave higher precision at lower levels and a nice exponential progression at higher levels.
+    - The scripts I wrote use `qdbus` which requires that `qt5-tools` packages be installed.
 2. Open `System Settings`.
 3. Navigate to `Workspace` → `Shortcuts` → `Custom Shortcuts`.
 4. `Edit` → `New` → `Global Shortcut` → `Command/URL`.
@@ -797,7 +827,7 @@ By default, it seems like there is more precision in the brightness at the highe
     - It will prompt you to reassign since the key is already used for screen brightness changes under power management.  Reassign it.
 7. In the `Action` tab, type the path to your script.  (As always, make sure the script has a shebang line and execute permissions.)
 8. Click `Apply` and try it out.
-Repeat for the other screen brightness key.
+9. Repeat for the other screen brightness key.
 
 ### SSH
 
@@ -824,6 +854,23 @@ Different keys for different hosts:
 To add a known host:
 
 - Easiest way is probably `ssh user@host.com`.  If you choose `yes`, it will save the known host.  Also doubles as a way to check that the connection will work.
+
+### Rename disk partitions
+
+Sometimes in Dolphin file manager, I need to go to the root of the file system.  By default, this shows up as `Basic data partition` under `Devices` or some other generic name which is not very clear.  I would rather it say something like `Root`.  How do we change it?
+
+Well, it's actually using the partition name here, which is sometimes set to `Basic data partition`.  You can change it with `fdisk`.  As always, when working with disk partitions, be very careful, because you can completely wreck your system and lose data.
+
+1. `sudo fdisk /dev/nvme0n1`, or whatever device the partition you want to rename is on.
+    1. Inside `fdisk`, use the `x` command to enter the expert menu.
+    2. `p` to print the partition table.  In expert mode, it will show additional information including the name of each partition.  It's a bit hard to read unless the terminal window is really wide, however.  In any case, find out which partition number you want to rename.
+    3. `n` to rename a partition.
+    4. Enter the number of the partition you wish to rename.
+    5. Enter the new name; for example, `Root`.
+    6. `p` again to verify the changes are correct.
+    7. `r` to return to the main menu.
+    8. `w` to write the partition table to disk and quit.
+2. Restart Dolphin or whichever file manager you use to see the changes.
 
 ## Later
 
@@ -883,20 +930,3 @@ I am not going to cover downgrading in general very thoroughly at this time.  Th
 1. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
     1. Locate the line that begins with `IgnorePkg=` which may be commented out.
     2. Change it to reflect your desired ignore list, uncommenting if necessary.  Multiple packages are separated by spaces.  Glob patterns may also be used.
-
-### Rename "Basic data partition"
-
-Sometimes in Dolphin file manager, I need to go to the root of the file system.  By default, this shows up as `Basic data partition` under `Devices`, which is not very clear.  I would rather it say something like `Root`.  How do we change it?
-
-Well, it's actually using the partition name here, which by default is `Basic data partition`.  You can change it with `fdisk`.  As always, when working with disk partitions, be very careful, because you can completely wreck your system and lose data.
-
-1. `sudo fdisk /dev/nvme0n1`, or whatever device the partition you want to rename is on.
-    1. Inside `fdisk`, use the `x` command to enter the expert menu.
-    2. `p` to print the partition table.  In expert mode, it will show additional information including the name of each partition.  It's a bit hard to read unless the terminal window is really wide, however.  In any case, find out which partition number you want to rename.
-    3. `n` to rename a partition.
-    4. Enter the number of the partition you wish to rename.
-    5. Enter the new name; for example, `Root`.
-    6. `p` again to verify the changes are correct.
-    7. `r` to return to the main menu.
-    8. `w` to write the partition table to disk and quit.
-2. Restart Dolphin or whichever file manager you use to see the changes.

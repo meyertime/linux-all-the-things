@@ -555,7 +555,7 @@ To get DejaVu Sans Mono in there, we need to convert it.
     4. `sudo cp DejaVuSansMono-32.psf /usr/share/kbd/consolefonts/`
 4. Set `DejaVuSansMono-32` as the console font.
 
-### Invert mouse scrolling direction (natural scrolling)
+### Mouse settings
 
 The settings in the KDE Plasma System Settings app have no effect.  You have to configure libinput manually.
 
@@ -565,9 +565,18 @@ The settings in the KDE Plasma System Settings app have no effect.  You have to 
             Identifier "touchpad"
             Driver "libinput"
             MatchIsTouchpad "on"
-            Option "NaturalScrolling" "true"
+            ...
     EndSection
     ```
+2. Add settings where the ellipsis is, for example:
+    - Invert mouse scrolling direction (natural scrolling)
+        ```
+        Option "NaturalScrolling" "true"
+        ```
+    - Tap to click
+        ```
+        Option "Tapping" "on"
+        ```
 
 ### Customize KDE Plasma desktop session
 

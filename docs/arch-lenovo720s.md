@@ -677,11 +677,49 @@ There are a few drivers that can be used with the integrated Intel graphics adap
 
 This laptop uses "Optimus" technology.  Essentially this means that the system has two graphics adapters: a low-power low-performance adapter built-in to the Intel CPU and the higher-power high-performance NVIDIA adapter.  The combination allows you to get the best of both worlds: high-performance graphics on demand for games and such and better battery life at other times.
 
-There is a proprietary NVIDIA driver for Linux, but it is meant primarily for servers that use GPUs for calculations, so it does not cover the adapter switching.  For that, there is a FOSS solution called `bumblebee`.  I have used it before, but I now read that it has performance issues.  An alternative is `nvidia-xrun`.  It is not as user-friendly, but it lets you get the full performance out of the NVIDIA adapter.
+There is a proprietary NVIDIA driver for Linux, but it is meant primarily for servers that use GPUs for calculations, so it does not cover the adapter switching.  For that, there is a FOSS solution called `bumblebee`.  I have used it before, but I now read that it has performance issues.  An alternative is `optimus-manager`.  It is not as user-friendly, but it lets you get the full performance out of the NVIDIA adapter.
 
 There is a FOSS NVIDIA driver called nouveau, but at the time of this writing, its performance is much worse than the proprietary driver.  This may change, however, since NVIDIA has recently started to release hardware documentation to assist with open-source driver creation.
 
-TODO: Use `nvidia-xrun` and document here.
+#### Optimus-manager
+
+You can use `optimus-manager` to switch graphics modes using a command or an optional tray icon.  Doing so requires logging out and back in, however, to start a new desktop session.  It does not handle powering the NVIDIA chip off or on directly, however.  This can be handled by the priprietary NVIDIA driver on newer hardware, but not on my hardware.  In my case, I am using `bbswitch`, which is supported by `optimus-manager`.
+
+1. Install `nvidia` package to get the latest proprietary NVIDIA driver for Linux.
+2. Install `optimus-manager` AUR package.
+4. Start and enable `optimus-manager.service`.
+5. Set the startup mode to your liking:
+    - `optimus-manager --set-startup intel`
+    - `optimus-manager --set-startup nvidia`
+    - `optimus-manager --set-startup hybrid`
+6. Try using `optimus-manager` to switch graphics modes.
+    - `optimus-manager --switch intel`
+    - `optimus-manager --switch nvidia`
+    - `optimus-manager --switch hybrid`
+7. Install `bbswitch` package, or `bbswitch-dkms` if you are using a different kernel than `linux` or a downgraded version of it.  If using `bbswitch-dkms`, you will also need `linux-headers`.
+8. Make a temporary `.conf` file somewhere:
+    ```
+    [optimus]
+    switching=bbswitch
+    pci_power_control=no
+    pci_remove=no
+    pci_reset=no
+    ```
+9. `optimus-manager --temp-config path/to/file.conf`
+10. Test the config by switching a few times.  If you run into trouble, reboot the computer to load the normal config.
+11. Save the working config to `/etc/optimus-manager/optimus-manager.conf`.
+12. Install `optimus-manager-qt` AUR package to get the tray icon.
+    - When installing, edit the build file and set `_plasma=true` if using KDE Plasma.
+    1. Launch `Optimus Manager` app.  It will appear in the tray.
+    2. Use the tray icon to launch settings.
+    3. Tick `Launch at startup` and configure any other settings.
+        - If `Launch at startup` does not take effect, it may be because the `~/.config/autostart` directory does not exist.  Create it.
+    4. To make the icon permanently visible:
+        1. Right-click the expand button in the system tray and click `Configure System Tray...`.
+        2. Click `Entries`.
+        3. For `Optimus Manager`, change `Visibility` to `Shown`.
+
+TODO: Scaling issues with SDDM and NVIDIA mode
 
 ### Fix font issues
 
@@ -880,6 +918,13 @@ Well, it's actually using the partition name here, which is sometimes set to `Ba
     7. `r` to return to the main menu.
     8. `w` to write the partition table to disk and quit.
 2. Restart Dolphin or whichever file manager you use to see the changes.
+
+### Set editor globally
+
+Many linux terminal tools attempt to launch a text editor.  If one is not set globally, the default for that tool may not be installed or may not be your preferred editor.
+
+1. Set the `EDITOR` environment variable.
+    - For example: `EDITOR=vim`
 
 ## Later
 

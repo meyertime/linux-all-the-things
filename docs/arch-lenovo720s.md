@@ -926,6 +926,50 @@ Many linux terminal tools attempt to launch a text editor.  If one is not set gl
 1. Set the `EDITOR` environment variable.
     - For example: `EDITOR=vim`
 
+### Sudo sugar
+
+Sometimes you forget to type `sudo` when you need to, or maybe you just want a more polite way to ask for superuser permission.  If so, add this to your `~/.bashrc`:
+
+```
+function please()
+{
+    if [ "$1" != "" ]; then
+        sudo "$@"
+    else
+        sudo $(history -p \!\!);
+    fi
+}
+```
+
+Start a new terminal for the change to take effect.  Now, if you forget to type `sudo` you can just type `please` to execute the previous command with `sudo`.  Or, you can also type `please xyz` instead of `sudo xyz`.
+
+### Mount Windows partitions
+
+Dolphin and other file managers have the ability to mount drives on demand using a background service, and this includes Windows NTFS partitions.  However, you may not want to mount these partitions, especially the `C:` OS partition, in read/write mode.
+
+I was not able to find a way to prevent read/write mounting on certain partitions; however, you can achieve basically the same effect by auto-mounting the partition in read-only mode at startup.  I'm not sure if security-wise this prevents write access to regular users, but it would at least take some work and won't happen by accident.
+
+It also may be useful to mount these partitions to permanent locations in the file system for easy shell access.
+
+Basically, all you have to do is add them to `/etc/fstab` and reboot.
+
+1. Make sure the `ntfs-3g` package is installed to enable full NTFS support.
+2. Make a backup copy of `/etc/fstab` and have an Arch Linux Live USB stick handy in case you need it for recovery.
+3. Choose the mount points you will use.
+    - It is typical for major partitions to be mounted to directories directly under root; `/mnt` is for mounting temporarily.
+    - I chose `/winc` and `/wind` for the Windows `C:` and `D:` partitions, respectively.
+    - Create empty directories for these mount points.
+4. Use `blkid` to find out the UUIDs of the partitions you wish to mount.
+5. Add entries to `/etc/fstab`.  For example:
+    ```
+    UUID=0123456789ABCDEF  /winc  ntfs-3g  defaults,ro,nls=utf8,umask=000,dmask=027,fmask=137,uid=1000,gid=1000,windows_names  0  0
+    UUID=FEDCBA9876543210  /wind  ntfs-3g  rw,nls=utf8,umask=000,dmask=027,fmask=137,uid=1000,gid=1000,windows_names  0  2
+    ```
+    - In this example, `/winc` is mounted read-only (see the `ro` option) and `/wind/` is mounted read/write (see the `rw` option).
+    - Also, the last parameter is the priority for file system checking at startup.  According to the docs, the primary root Linux file system should be `1` and all other partitions `2`, while `0` disables file system checking.  So in this example, file system checking is disabled for `/winc` so as not to touch it, whereas it is enabled for `/wind` which is mounted also for writing.  You may wish to adjust these to your liking.
+    - As far as the mounting options in this example, other than `ro` and `rw`, I copied them from somewhere online, and they work well for me.
+6. Reboot and check that the partitions are mounted properly.
+
 ## Later
 
 ### Updating UEFI firmware

@@ -111,6 +111,7 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
     4. Create the wrapper script file `/usr/bin/openconnect.wrapper.sh`.
         - In this repository, [openconnect.wrapper.sh](../src/openconnect.wrapper.sh) is provided.  It takes parameters and standard input from the Network Manager plugin, runs `gp-okta.py`, does some processing, and runs `openconnect.real` with the correct arguments.  It also traps signals and passes them on to openconnect so that it will terminate properly.
         - Make sure it has execute permissions.
+        - Edit any variables, such as file paths, as needed.
     5. Create a symbolic link to the wrapper script.
         1. `ln -s /usr/bin/openconnect.wrapper.sh /usr/bin/openconnect`
 11. The wrapper script uses `kdialog` to prompt for the password.
@@ -120,6 +121,43 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
     1. Click on the network tray icon.
     2. You should see the VPN connection listed.  Hover over it and click `Connect`.
 
-## Next steps
+## Split tunnel
 
-- Dual-homing
+Normally, the VPN will redirect all network traffic over the VPN.  This prevents access to resources on your home network or whatever other network you are connected to.  The solution is split tunneling.
+
+Another reason to do split tunneling is to take full advantage of your local internet speed rather than being limited to the internet speed through the VPN.
+
+There are two parts to this: routing and DNS.
+
+### Split routes
+
+Routes determine where IP packets go.  We want most traffic to stay on your regular network while routing specific subnets through the VPN.
+
+1. Configure the VPN network.
+2. Go to the `IPv4` tab.
+3. Click the `Routes...` button.
+4. Add the subnets you want routed through the VPN.  Here are all private (non-internet) subnets; but you may not want to include all of them depending on your VPN network and home networks:
+    ```
+    Address      Netmask      Gateway  Metric
+    10.0.0.0     255.0.0.0    0.0.0.0  0
+    172.16.0.0   255.240.0.0  0.0.0.0  0
+    192.168.0.0  255.255.0.0  0.0.0.0  0
+    ```
+5. Tick `Ignore automatically obtained routes`.
+    - The automatic routes may include routing all traffic, or may route too much traffic.
+6. Tick `User only for resources on this connection`.
+    - If you don't tick this, you may end up with a default route making it possible for other traffic to still end up on the VPN.
+7. Click `OK` and `Apply`.
+8. You will have to re-edit the `.nmconnection` file as above, since the manual changes will be overwritten.  Restart `NetworkManager.service` afterward.
+
+### Split DNS
+
+This will allow you to lookup host names on all of your networks, not just the VPN.
+
+1. Install `dnsmasq` package.
+2. Create the file `/etc/NetworkManager/conf.d/dns.conf` with the content:
+    ```
+    [main]
+    dns=dnsmasq
+    ```
+3. Restart `NetworkManager.service`.

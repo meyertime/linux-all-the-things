@@ -54,7 +54,7 @@ PASSWORD=`DISPLAY=:0 kdialog --title "VPN" --password "Enter Okta password:"`
 if [ $? != 0 ]; then exit $?; fi
 
 if [ $SIGNAL_PENDING ]; then exit; fi
-OUTPUT=$(GP_PASSWORD="$PASSWORD" GP_OPENCONNECT_CMD=openconnect.real GP_OPENCONNECT_ARGS="$ARGS" GP_EXECUTE=0 "$GP_OKTA_DIR/gp-okta.py" "$GP_OKTA_DIR/gp-okta.conf")
+OUTPUT=$(GP_PASSWORD="$PASSWORD" GP_OPENCONNECT_CMD=openconnect.real GP_OPENCONNECT_ARGS="$ARGS" GP_EXECUTE=0 "$GP_OKTA_DIR/gp-okta.py" "$GP_OKTA_CONF")
 if [ $? != 0 ]; then echo "$OUTPUT"; exit; fi
 
 CMD=$(echo "$OUTPUT" | tail -n 1)

@@ -228,7 +228,7 @@ My laptop has a 4k monitor, and the text is extremely small.  Let's download and
 
 1. Bootstrap Arch system
     1. `pacstrap /mnt base linux linux-firmware base-devel` to install base packages on new system.
-        - Since I originally wrote this and set up my system the last time, `base` was changed from a group to a package.  I presume this was to give more flexibility to choose a linux kernel and other packages.  The installation guide now recommends to install `linux` and `linux-firmware` in addition to `base`, and this is supposedly equivalent to installing `base` before, though I have not tried this on a new install yet.  It also mentions that the base install no longer includes an editor (presumably `vi`?) so you may also want to install `vi`, `vim`, or some other editor at some point.
+        - Since I originally wrote this, `base` was changed from a group to a package.  I presume this was to give more flexibility to choose a linux kernel and other packages.  The installation guide now recommends to install `linux` and `linux-firmware` in addition to `base`, and this is equivalent to installing `base` before.  It also mentions that the base install no longer includes an editor (presumably `vi`?) so you may also want to install `vi`, `vim`, or some other editor at some point.
         - You may not need `base-devel` if you don't plan on developing software; however, it is required in order to install packages from AUR, because such packages are built on your machine. You can always install later if needed. Just know that `base-devel` will not be installed automatically if needed; you may get some cryptic error message instead.
     2. `genfstab -U /mnt >>/mnt/etc/fstab`
         - Generates the file system table.  This makes the mounting of the root and boot partitions permanent.
@@ -340,7 +340,7 @@ Whether or not you change the default, you may also want to flatten the boot men
 1. Edit the file `/etc/default/grub`.
     1. Add a section at the end for custom values.  I like to do this, anyway, to keep them separate from the defaults.
     2. To flatten the boot menu, add `GRUB_DISABLE_SUBMENU=y`.
-    3. To change the default menu entry, add `GRUB_DEFAULT='gnu-linux-advanced-01234567-89ab-cdef-0123-456789abcdef', for example.
+    3. To change the default menu entry, add `GRUB_DEFAULT='gnu-linux-advanced-01234567-89ab-cdef-0123-456789abcdef'`, for example.
         - To find the ID of the menu entry that you want to set as default, look in `/boot/grub/grub.cfg`.
 2. `sudo grub-mkconfig 2>/dev/null` to generate a new `grub.cfg` and print it to stdout.  Check the output to be sure it is right.  Omit the `2>/dev/null` part if you want to see stderr output as well.
 3. `sudo grub-mkconfig -o /boot/grub/grub.cfg` to generate a new config and save it.

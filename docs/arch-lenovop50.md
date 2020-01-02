@@ -24,15 +24,17 @@ Here's a bit more background on this.  By default, GRUB appears to use whatever 
 GRUB has a setting that controls the graphics mode used for GRUB.  After Linux is loaded, however, the kernel will set the graphics mode according to its settings.  The default for Arch Linux is to keep the same graphics mode from GRUB until X sets it.  This can lead to some weirdness during the boot process.  For example, if you have set a large console font to make up for the 4k resolution, then you will see extremely large text for a moment until X increases the resolution.  In my opinion, the best solution would be to tell the Linux kernel to set the resolution right away.
 
 1. Optionally, find out the available graphics modes.  Press `c` in the GRUB boot menu to enter the GRUB command line, and then type `videoinfo`.  Or, you can trust that they are the same as mine:
-    - `0x000 1024 x  768 x 32`
-    - `0x001  640 x  480 x 32`
-    - `0x002  800 x  600 x 32`
-    - `0x003 3840 x 2160 x 32`
+    ```
+    0x000 1024 x  768 x 32
+    0x001  640 x  480 x 32
+    0x002  800 x  600 x 32
+    0x003 3840 x 2160 x 32
+    ```
 2. Configure GRUB.
     1. Edit `/etc/default/grub`.
         1. Add `GRUB_GFXMODE=640x480x32,auto`.
             - Graphics modes follow the format `WIDTHxHEIGHTxDEPTH`.  You may specify more than one separated by a comma, in which case, if one fails, the next one will be tried.  Finally, `auto` is a special value that auto-selects a graphics mode.  It is recommended to include `auto` as the last value for safety.
-        2. Add `GRUB_GFXPAYLOAD=3840x2160x32,auto`.
+        2. Add `GRUB_GFXPAYLOAD_LINUX=3840x2160x32,auto`.
             - This value tells the Linux kernel how to handle the graphics mode right away when it loads.  The special value `keep`, which is set by default for GRUB/Arch, causes the current graphics mode to be kept.  `text` will cause text mode to be used, which is a special graphics mode supported by some PCs.  Or, a specific graphics mode can be specified the same as `GRUB_GFXMODE`.
     2. Optionally, set a font for GRUB.  At the lower resolutions, the default font for GRUB looks just fine.  However, you may want the GRUB font to match your Linux console font.  Note that you will want a smaller size than the one used in the Linux console, since it will be displayed at a much lower resolution.  Here's how to set the smallest terminus font:
         1. `sudo pacman -S terminus-font`

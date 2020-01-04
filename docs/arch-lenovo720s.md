@@ -719,7 +719,18 @@ You can use `optimus-manager` to switch graphics modes using a command or an opt
         2. Click `Entries`.
         3. For `Optimus Manager`, change `Visibility` to `Shown`.
 
-TODO: Scaling issues with SDDM and NVIDIA mode
+##### Fix scaling in NVIDIA mode
+
+Some KDE Plasma scaling is wrong after switching to NVIDIA mode using `optimus-manager`.  (See https://github.com/Askannz/optimus-manager/issues/154)  This is because the global scaling value sets all the screens in the `QT_SCREEN_SCALE_FACTORS` environment variable, but the screens have different names in NVIDIA mode.  For example, `eDP-1` becomes `eDP-1-1`.  Values need to be added for the NVIDIA screens.
+
+1. Create the file `~/.config/plasma-workspace/env/nvidia-scale.sh` with execute permissions with this content:
+    ```
+    #!/bin/bash
+    export QT_SCREEN_SCALE_FACTORS="${QT_SCREEN_SCALE_FACTORS}eDP-1-1=2;DP-1-1=2;HDMI-1-1=2;"
+    ```
+2. Log out and back in.
+
+TODO: Slow shut down after installing `optimus-manager`
 
 ### Fix font issues
 

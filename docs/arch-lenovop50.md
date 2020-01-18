@@ -90,3 +90,36 @@ I am trying to do this the Linux way.  I was tempted to use directories under `/
     - You can also run `mount` to list all mount points.
 
 TODO: Set up and link directories
+
+## Video
+
+My video needs on the P50 are quite different than the 720S.  I am not concerned with video performance in the sense of 3D rendering for video games.  I use the P50 for work, so screen real estate is the name of the game.  I use it with 2 external 4k monitors: one connected to the rear thunderbolt port and one connected to the mini DisplayPort on the right side.  I also use the laptop monitor, also 4k, at the same time.
+
+Here's what I know so far:
+
+- Using the same `optimus-manager` solution in conjunction with the proprietary NVIDIA driver, `bbswitch`, and a UEFI firmware setting of `Hybrid` seems to work OK.  KDE is able to detect the external monitors and configure them.
+    - However, the external ports are not available unless `nvidia` mode is selected.
+    - In this configuration, the available outputs in `intel` mode are:
+        - `eDP-1` - Internal laptop monitor
+        - `DP-1-1` - Unknown, presumably one of: HDMI, mini-DP, Thunderbolt; however, it never shows as connected.  Most likely these ports are connected to the discrete NVIDIA chip and reverse PRIME is required to use them in `intel` mode.
+        - `DP-1-2` - Unkonwn, ditto
+        - `DP-1-3` - Unkonwn, ditto
+    - In this configuration, the available outputs in `nvidia` mode are:
+        - `eDP-1-1` - Internal laptop monitor
+        - `DP-0` - Unknown
+        - `DP-1` - Unknown
+        - `DP-2` - Unknown
+        - `DP-3` - Mini DisplayPort
+        - `DP-4` - Thunderbolt port
+        - `DP-5` - Unknown
+- I have also tried using the `Discrete Only` setting in the UEFI firmware as suggested in the Arch wiki with the proprietary NVIDIA driver.
+    - A slightly different set of outputs results:
+        - `DP-0` - Unknown
+        - `DP-1` - Unknown
+        - `DP-2` - Unknown
+        - `DP-3` - Mini DisplayPort
+        - `DP-4` - Internal laptop monitor
+        - `DP-5` - Thunderbolt port
+        - `DP-6` - Unknown
+    - The internal laptop monitor does not advertise any modes other than its native 4k resolution.  At the same time, the computer boots at a lower resolution for some reason.  The kernel also no longer changes the resolution back to 4k during boot, but when X starts, it is able to.
+- 

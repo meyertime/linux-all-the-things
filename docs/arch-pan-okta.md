@@ -117,6 +117,7 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
 11. The wrapper script uses `kdialog` to prompt for the password.
     1. Install the `kdialog` package.
     2. `xhost +si:localuser:nm-openconnect` to grant access to the local `nm-openconnect` user to use the X window system.
+        1. Add this command to a script under `/etc/profile.d/` to make the setting persist across reboots.
 12. Test it.
     1. Click on the network tray icon.
     2. You should see the VPN connection listed.  Hover over it and click `Connect`.
@@ -161,3 +162,14 @@ This will allow you to lookup host names on all of your networks, not just the V
     dns=dnsmasq
     ```
 3. Restart `NetworkManager.service`.
+
+By default, NetworkManager will favor non-VPN networks for DNS lookup.  You will have to specify which domains to use the VPN network for.  This can be done through the NetworkManager GUI by configuring the "Search Domains"; however, it will break the modifications made to the `.nmconnection` file.  Here's how to do it manually instead:
+
+1. The `.nmconnection` files are located under `/etc/NetworkManager/system-connections/`.  Edit the one for the connection you created.
+2. Set a value like this under `[ipv4]`:
+    ```
+    dns-search=domain1.com;domain2.com;
+    ```
+3. The special value `~` can be used to indicate that any domains that do not match any of the configured search domains for any connection should be resolved through this connection.
+4. Save the file.
+5. `systemctl restart NetworkManager.service`

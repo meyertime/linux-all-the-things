@@ -774,6 +774,7 @@ If you installed the `kde-applications` package, you already have a ton of appli
     - SpeedCrunch
 - Remote Desktop Client
     - Remmina
+        - For RDP support, install `freerdp` package or `remmina-plugin-rdesktop` AUR package.
 - Text editor
     - Visual Studio Code
         - Yeah, it's more for programming than just text editing, but it makes a good text editor too.
@@ -790,6 +791,11 @@ If you installed the `kde-applications` package, you already have a ton of appli
             5. Click `OK`.
 - Video player
     - VLC
+- Music player
+    - Amarok
+        - Requires a Phonon backend:
+            - `phonon-qt5-vlc` - Since I already have VLC installed, it makes more sense to use this one.  Plus it is recommended by Phonon.
+            - `phonon-qt5-gstreamer` - Preferred by some Linux distros in order to avoid patented codecs.
 - Image viewer
     - Gwenview
 - Image editor

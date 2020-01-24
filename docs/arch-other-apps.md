@@ -28,3 +28,11 @@ The latest version uses GTK3 and the UI elements scale in size nicely.  However,
 - SmartGit - so far, seems to be the most fully-featured; however, it is only free for personal use and not open source.
 - Gitg - really simple and no push functionality, but otherwise nice.
 - Git Cola - seems really customizable and may be nice if I can get used to it, but I can't seem to find out how to see a simple list of commits that shows tree structure.
+
+## Steam
+
+1. Add `multilib` pacman repository.
+2. 32-bit OpenGL drivers are also needed.  For AMD and Intel, install `lib32-mesa`, and for NVIDIA, install `lib32-nvidia-utils`.
+3. The locale `en_US.UTF-8` is required and must be generated.  If you followed the instructions in this repository to install Arch Linux, you probably already have this locale unless you chose a different one.
+4. Steam relies on Microsoft fonts; install `ttf-liberation` to get free substitutes.
+5. Install `steam` package.

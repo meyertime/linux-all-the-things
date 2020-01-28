@@ -950,10 +950,12 @@ Sometimes you forget to type `sudo` when you need to, or maybe you just want a m
 ```
 function please()
 {
-    if [ "$1" != "" ]; then
+    if [ $# -gt 0 ]; then
         sudo "$@"
     else
-        sudo $(history -p \!\!);
+        local cmd=$(history -p \!\!)
+        history -s please $cmd
+        eval sudo $cmd
     fi
 }
 ```

@@ -987,6 +987,27 @@ Basically, all you have to do is add them to `/etc/fstab` and reboot.
     - As far as the mounting options in this example, other than `ro` and `rw`, I copied them from somewhere online, and they work well for me.
 6. Reboot and check that the partitions are mounted properly.
 
+### Time synchronization
+
+Time synchronization is not configured or enabled by default in Arch Linux.
+
+Arch Linux comes with `systemd` which comes with `systemd-timesyncd` which is a simple NTP client daemon that will sync your clock.  However, it's a little _too_ simple for my taste.  For instance, my laptop's clock seems to have a lot of drift, as it gets more and more inaccurate as time goes on.  This built-in daemon will simply poll frequently enough to correct the drift, but if you are offline, it will drift until you are online again.  I also don't like the idea of polling too frequently, especially since it writes the time to a file every time it polls leading to frequent disk writes.  If you use a more sophisticated NTP client, it can measure and correct drift and keep the clock pretty accurate without polling a ton.
+
+Meet `chrony`.  Here's how to set it up:
+
+1. Install the `chrony` package.
+2. Edit `/etc/chorny.conf`.
+    1. Configure your NTP servers.  For example, to use pool.ntp.org:
+        ```
+        server 0.pool.ntp.org offline
+        server 1.pool.ntp.org offline
+        server 2.pool.ntp.org offline
+        ```
+        Note the `offline` part.  This puts `chrony` in offline mode when it starts since your machine probably won't have network access at that time.  You can change it to `iburst` otherwise.
+3. `systemctl enable chronyd --now`
+4. Notify `chrony` when there are network state changes by integrating with `NetworkManager`.
+    1. Install the `networkmanager-dispatcher-chrony` AUR package.
+
 ## Later
 
 ### Updating UEFI firmware

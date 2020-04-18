@@ -861,6 +861,12 @@ Windows compatibility layer is handy for running some Windows apps without the h
 2. Install the `wine` package.
 3. Install `wine-mono` and `wine_gecko` as well.  Without these, wine will show pop-ups prompting to install .NET and Internet Explorer compatibility components.  It's better to use the distro-specific packages instead.
 
+#### Stop wine from taking over as default application
+
+Arch Linux wiki has a good write-up for this on: https://wiki.archlinux.org/index.php/Wine
+
+See the headings "Unregister existing Wine file associations" and "Prevent new Wine file associations".
+
 ### File systems
 
 - exFAT

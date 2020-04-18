@@ -15,6 +15,10 @@ Supposedly, enabling the socket this way will cause the CUPS service not to star
     1. `systemctl disable org.cups.cupsd.socket` if you previously enabled it.
     2. `systemctl enable org.cups.cupsd.service`
 
+### Enable printers in system settings
+
+If you're using KDE, install the `print-manager` package.  A `Printers` section will appear in system settings.
+
 ## Set up Epson printers
 
 1. Install Epson driver AUR packages.

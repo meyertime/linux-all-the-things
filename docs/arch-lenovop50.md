@@ -122,4 +122,7 @@ Here's what I know so far:
         - `DP-5` - Thunderbolt port
         - `DP-6` - Unknown
     - The internal laptop monitor does not advertise any modes other than its native 4k resolution.  At the same time, the computer boots at a lower resolution for some reason.  The kernel also no longer changes the resolution back to 4k during boot, but when X starts, it is able to.
-- 
+
+## Auto-disable wifi when network cable plugged in
+
+Drop [99-wlan](../src/etc/NetworkManager/dispatcher.d/99-wlan) into `/etc/NetworkManager/dispatcher.d/` and make sure it has execute permission.

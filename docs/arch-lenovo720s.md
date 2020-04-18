@@ -236,6 +236,8 @@ My laptop has a 4k monitor, and the text is extremely small.  Let's download and
         - This is a "change root" or `chroot` operation. This temporarily changes the root directory `/` to point to some other directory. In this case, it will point to the root of the partition we set up to be the root of the new Arch system, so from this point forward, commands will behave as if they were run on that system instead of the Arch Live system. Furthermore, files from Arch Live, including any packages or executables, will no longer be available. Somehow, the network is still available, though.
         - You can exit `chroot` any time by typing `exit` to get back to the Arch Live system.
         - The remaining installation instructions assume you are running under `chroot`.
+    4. `pacman -S intel-ucode` to enable microcode updates.  (If you have an AMD CPU, use `amd-ucode` instead.)
+        - Processor manufacturers release stability and security updates to the processor "microcode".  Usually these are installed through UEFI firmware updates; however, manufacturers may be slow to do so or may have abandoned older hardware models entirely.  In this case, it is useful to have the bootloader load the updated microcode during boot.  After installing this package, the `grub` bootloader (installed later) will automatically detect and make use of it when generating its configuration.
 2. Set time zone and locale
     1. `ln -sf /usr/share/zoneinfo/US/Central /etc/localtime`
     2. `hwclock --systohc`
@@ -796,6 +798,9 @@ If you installed the `kde-applications` package, you already have a ton of appli
         - Requires a Phonon backend:
             - `phonon-qt5-vlc` - Since I already have VLC installed, it makes more sense to use this one.  Plus it is recommended by Phonon.
             - `phonon-qt5-gstreamer` - Preferred by some Linux distros in order to avoid patented codecs.
+    - Pithos
+        - Simple Pandora client that works nicely.
+        - When I first tried to run it, I got an error about not having a secret service such as `gnome-keyring`.  All you need to do is install `gnome-keyring`.  This is because KWallet, which comes with KDE Plasma, does not support the newer standardized secret service protocol.  Pithos uses this, presumably, to store your Pandora password securely.
 - Image viewer
     - Gwenview
 - Image editor
@@ -994,6 +999,27 @@ Basically, all you have to do is add them to `/etc/fstab` and reboot.
     - Also, the last parameter is the priority for file system checking at startup.  According to the docs, the primary root Linux file system should be `1` and all other partitions `2`, while `0` disables file system checking.  So in this example, file system checking is disabled for `/winc` so as not to touch it, whereas it is enabled for `/wind` which is mounted also for writing.  You may wish to adjust these to your liking.
     - As far as the mounting options in this example, other than `ro` and `rw`, I copied them from somewhere online, and they work well for me.
 6. Reboot and check that the partitions are mounted properly.
+
+### Time synchronization
+
+Time synchronization is not configured or enabled by default in Arch Linux.
+
+Arch Linux comes with `systemd` which comes with `systemd-timesyncd` which is a simple NTP client daemon that will sync your clock.  However, it's a little _too_ simple for my taste.  For instance, my laptop's clock seems to have a lot of drift, as it gets more and more inaccurate as time goes on.  This built-in daemon will simply poll frequently enough to correct the drift, but if you are offline, it will drift until you are online again.  I also don't like the idea of polling too frequently, especially since it writes the time to a file every time it polls leading to frequent disk writes.  If you use a more sophisticated NTP client, it can measure and correct drift and keep the clock pretty accurate without polling a ton.
+
+Meet `chrony`.  Here's how to set it up:
+
+1. Install the `chrony` package.
+2. Edit `/etc/chorny.conf`.
+    1. Configure your NTP servers.  For example, to use pool.ntp.org:
+        ```
+        server 0.pool.ntp.org offline
+        server 1.pool.ntp.org offline
+        server 2.pool.ntp.org offline
+        ```
+        Note the `offline` part.  This puts `chrony` in offline mode when it starts since your machine probably won't have network access at that time.  You can change it to `iburst` otherwise.
+3. `systemctl enable chronyd --now`
+4. Notify `chrony` when there are network state changes by integrating with `NetworkManager`.
+    1. Install the `networkmanager-dispatcher-chrony` AUR package.
 
 ## Later
 

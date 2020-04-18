@@ -161,10 +161,9 @@ In this case, I am using Tomato firmware which provides a web UI for configuring
 
 - Under `Basic`:
     - Start with WAN: Checked
-    - Interface Type: TAP
-        - I may experiment with TUN later because it performs better, but for now, I don't quite want to break Windows file sharing, so I will stick with TAP.
-        - It remains to be seen if a server configured with TAP can accept TUN clients, in which case, I would also need to check if TUN would be better on the server side too.
-    - Bridge TAP with: LAN (br0)
+    - Interface Type: TUN
+        - Client and server must agree on interface type.  If they do not agree, the server setting is used and a warning is logged on the client.
+        - TUN is better and has better support.  The Linux client requires extra manual steps to make use of a TAP connection after it is made.  These extra steps are not supported by NetworkManager.  Android does not support TAP.
     - Protocol: TCP
         - UDP may perform better, but TCP pierces through firewalls more easily.
     - Port: 443
@@ -174,13 +173,18 @@ In this case, I am using Tomato firmware which provides a web UI for configuring
     - Authorization Mode: TLS
         - TLS is more secure than a static key.
     - Extra HMAC authorization (tls-auth): Incoming (0)
-    - Client address pool: DHCP
-        - This makes VPN clients get their IP the same way as any other computer on the network.
+    - VPN subnet/netmask: Choose to your liking.
+        - It must be different from the main subnet for your router (or any other subnet you may also connect to for that matter).
 - Under `Advanced`:
     - Poll Interval: 0
         - If activated, a service will poll OpenVPN to make sure it's still running and restart it if it's not.  However, I have had it disabled for many moons, and never had a problem.
+    - Push LAN to clients: checked
+        - Since this is a routed (TUN) interface, this option asks the client to create a route so that traffic bound for your LAN will make its way through the VPN.  You almost always want this.  Without it, the client either won't be able to access the LAN, or they would have to rely on a default route sending all IP traffic through the VPN.
     - Direct clients to redirect Internet traffic: unchecked
-    - Respond to DNS: unchecked
+        - Clients may override this on their end, but check this if you typically always want all traffic to go through the VPN.
+    - Respond to DNS: checked
+        - Without this, clients will not be able to use the router's DNS.
+    - Advertise DNS to clients: checked
     - Encryption cipher: AES-256-CBC
         - AES is the only algorithm available in the drop-down that is still considered secure.  256 is the largest strength.  The block mode does not seem to matter between the three available ones.
     - Compression: Disabled
@@ -188,7 +192,13 @@ In this case, I am using Tomato firmware which provides a web UI for configuring
     - TLS Renegotiation Time: -1
         - According to the OpenVPN docs, the default is 6 hours, which seems reasonable.
         - This will cause the encryption key to change periodically.  This is good for security.
-    - Manage Client-Specific Options: unchecked
+    - Manage Client-Specific Options: checked
+        - This seems to just make some other options visible.
+    - Allow Client<->Client: checked
+        - This pushes another route to clients so that traffic bound for the VPN (other clients) will make its way there.
+        - This also enables an optimization where OpenVPN will forward packets directly from one client to the other rather than going through the router's network stack.
+        - Note that it may still be possible for clients to reach other clients on the VPN even with these settings unchecked.  For example, if the router has a route to reach the VPN (which it usually does) and a client's routes direct the packets to the VPN network.
+    - Allow Only These Clients: unchecked
     - Allow User/Pass Auth: unchecked
     - Custom Configuration: leave blank
 - Under `Keys`:
@@ -220,4 +230,26 @@ If you have trouble saving these settings, I believe it is because the HTTP POST
 
 ### NetworkManager
 
-At this time, the connection does not work when configured in NetworkManager.  I have yet to find a workaround.
+NetworkManager only supports TUN.  TAP requires additional manual steps to configure bridging and DHCP that are not included in the OpenVPN Linux client.  Instead of doing these, NetworkManager logs a vague error about IP settings being invalid.  TUN works just fine, however, and has less overhead.
+
+1. Right-click the network icon in the icon tray and select `Configure Network Connections...`.
+2. Use the plus icon to create a new connection.
+3. Scroll to the bottom and select `Import VPN connection...`.
+4. Click `Create`.
+5. Select the `.ovpn` file with your OpenVPN configuration.
+    - If desired, select the option to copy the certificates.
+6. Some settings do not get imported.  It will not tell you which ones.  Here are some settings to check:
+    - `VPN (openvpn)` tab:
+        - Click `Advanced...`:
+            - `TLS Settings` tab:
+                - Verify peer (server) certificate usage signature: checked
+                - Remote peer certificate TLS type: `Server`
+                    - Without this setting, any signed certificate can be used by the server, even one of the client certificates.  This protects you from a man-in-the-middle attack in case one of the client certificates is compromised.
+7. Some other settings you may want to change:
+    - `IPv4` tab:
+        - Search Domains: comma-separated list of domains to use this connection for when split DNS is configured
+            - The special value `~` can be used to indicate that any domains that do not match any of the configured search domains for any connection should be resolved through this connection.
+        - Click `Routes...`
+            - Add any specific subnets that you want to be routed through this connection.
+            - Ignore automatically obtained routes: set as desired
+            - Use only for resources on this connection: set as desired

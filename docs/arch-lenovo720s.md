@@ -796,6 +796,15 @@ If you installed the `kde-applications` package, you already have a ton of appli
             3. Go to `LibreOffice` → `View`.
             4. Under `Icon style` select `Breeze (dark)`.
             5. Click `OK`.
+- Document viewer
+    - Okular
+        - Views PDFs.  Not as full-featured as Adobe Reader, but decent for simply viewing docs.  It's a KDE app, so integrates well visually.
+    - Boomaga
+        - This app is specifically designed for printing documents.  Similar to Adobe, it can print multiple pages per sheet and booklets.
+        - It can be set up as a virtual printer in order to integrate with other applications.  To do so, use the CUPS administration pages to add a printer and choose the detected local Boomaga printer.
+        - You can also launch the app directly and open supported documents for printing, including PDF.
+    - Adobe Reader
+        - There is an AUR package `acroread` for installing Adobe Reader.  It worked for me at one time, but no longer.  It crashes immediately when starting.  I guess it's a really old version, because Adobe dropped Linux support some time ago.  I do not recommend using it.
 - Video player
     - VLC
 - Music player

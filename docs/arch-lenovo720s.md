@@ -422,6 +422,11 @@ My laptop has a 4k screen, so obviously scaling is necessary.  Scaling is a bit 
     2. Adjust taskbar height if necessary.
         1. Click the configure icon at the right edge of the bar.
         2. Find the `Height` button.  Drag it with the mouse to adjust the height.
+    3. This is more of a tweak than a fix:  You can configure the task manager to show only one row which allows you to keep it slightly taller without wrapping the buttons.  Instead, the text inside wraps, which is handy.
+        1. Click the configure icon at the right edge of the bar.
+        2. Hover over the task manager and click `Configure...` in the menu that appears.  This opens `Task Manager Settings`.
+        3. Under `Appearance`, change `Maximum rows` to `1`.
+        4. Click `OK`.
 4. Fix mouse cursor scaling
     1. For the most part, the cursor scaling seems to work out of the box.  I did notice one instance where it was wrong: The cursor was tiny when hovering over title bars.  The following will make the scale consistent, but may prevent proper scaling of external monitors with different scales.
     2. Open `System Settings`

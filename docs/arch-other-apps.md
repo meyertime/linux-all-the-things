@@ -34,6 +34,15 @@ I had trouble getting audio to work on the Lenovo P50.  None of the sound cards 
 - SmartGit - so far, seems to be the most fully-featured; however, it is only free for personal use and not open source.
 - Gitg - really simple and no push functionality, but otherwise nice.
 - Git Cola - seems really customizable and may be nice if I can get used to it, but I can't seem to find out how to see a simple list of commits that shows tree structure.
+- GitExtensions - Used to be cross-platform, but now is only for Windows.  The old version is still available for Linux.  It's ugly and has some scaling bugs, but sadly still works the best for me compared to the others.
+    - Install `gitextensions` AUR package.
+    - Some work is needed to get it to prompt for SSH key passwords.  This will set it up to work through KDE Wallet:
+        1. Install `ksshaskpass` package, if it's not already installed.
+        2. Set `SSH_ASKPASS` variable to `/usr/bin/ksshaskpass` by creating the file `~/.config/plasma-workspace/env/askpass.sh` with the content:
+            ```
+            #!/bin/sh
+            export SSH_ASKPASS='/usr/bin/ksshaskpass'
+            ```
 
 ## Steam
 

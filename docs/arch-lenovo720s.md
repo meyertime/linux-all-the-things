@@ -786,6 +786,13 @@ If you installed the `kde-applications` package, you already have a ton of appli
     - Visual Studio Code
         - Yeah, it's more for programming than just text editing, but it makes a good text editor too.
         - There is a known issue with the `code` package where elevating permissions to save files with root access does not work.  The workaround is to use the AUR package `visual-studio-code-bin` instead.  See https://github.com/Microsoft/vscode/issues/70403
+    - Kate
+        - KDE's text editor.  Not stellar, but works fine as a complement to a more developer-focused editor like Visual Studio Code.
+        - Apply dark colors to the document itself too:
+            1. Go to `Settings` → `Configure Kate...`.
+            2. Go to `Editor Component` → `Fonts & Colors`.
+            3. In the drop-down `Default schema for kate`, select `Breeze Dark`.
+            4. Click `Apply` and `OK`.
 - Office suite
     - LibreOffice
         - Install `libreoffice-still` for stable or `libreoffice-fresh` for latest.
@@ -879,6 +886,12 @@ Windows compatibility layer is handy for running some Windows apps without the h
 1. Make sure `multilib` repository is configured (see section).
 2. Install the `wine` package.
 3. Install `wine-mono` and `wine_gecko` as well.  Without these, wine will show pop-ups prompting to install .NET and Internet Explorer compatibility components.  It's better to use the distro-specific packages instead.
+
+#### Stop wine from taking over as default application
+
+Arch Linux wiki has a good write-up for this on: https://wiki.archlinux.org/index.php/Wine
+
+See the headings "Unregister existing Wine file associations" and "Prevent new Wine file associations".
 
 ### File systems
 

@@ -22,6 +22,12 @@ The latest version uses GTK3 and the UI elements scale in size nicely.  However,
 1. Install the `audacity` package.
 2. If you're using dark theme, it will look messed up at first.  Go to `Edit` → `Preferences` → `Interface` and change `Theme` to `Dark`.
 
+I had trouble getting audio to work on the Lenovo P50.  None of the sound cards showed up in the list other than the ones over HDMI.  I think it is because Audacity uses ALSA and requires exclusive access, whereas my Arch Plasma setup uses PulseAudio as a software mixing layer and probably monopolized the devices.  Getting Audacity to use PulseAudio is a little wonky:
+
+1. Install the `alsa-plugins` package.
+2. In Audacity, keep the host set to `ALSA` and set the playback and recording devices to `pulse`.
+3. It will use the default devices configured in PulseAudio by default.  To change, use `pavucontrol` or similar PulseAudio utility.
+
 ## Git GUI client
 
 - GitAhead - seems pretty full-featured, but has a strange interface...

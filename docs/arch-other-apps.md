@@ -51,3 +51,15 @@ I had trouble getting audio to work on the Lenovo P50.  None of the sound cards 
 3. The locale `en_US.UTF-8` is required and must be generated.  If you followed the instructions in this repository to install Arch Linux, you probably already have this locale unless you chose a different one.
 4. Steam relies on Microsoft fonts; install `ttf-liberation` to get free substitutes.
 5. Install `steam` package.
+
+## Integrated Development Environment (IDE)
+
+### IntelliJ IDEA
+
+With the default setup, I have run into this error when trying to edit Markdown files: `Tried to use preview panel provider (JavaFX WebView), but it is unavailable. Reverting to default.`  Installing using this setup worked:
+
+1. Install `intellij-idea-community-edition-no-jre` AUR package.
+2. Install Java 8 (`jdk8-openjdk`).
+3. Make sure optional dependency `java8-openjfx` is installed.
+4. In IntelliJ, install the `Choose Runtime` plugin.
+5. Use the plugin to select the 1.8 runtime.

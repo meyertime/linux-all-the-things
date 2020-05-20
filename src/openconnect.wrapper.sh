@@ -23,7 +23,7 @@ trap 'handle_signal KILL' KILL
 
 echo '> openconnect' "$@"
 
-GP_OKTA_DIR="/usr/local/lib"
+GP_OKTA_DIR="/usr/local/lib/pan-globalprotect-okta"
 GP_OKTA_CONF="$GP_OKTA_DIR/gp-okta.conf"
 CSD_WRAPPER="$GP_OKTA_DIR/hipreport.sh"
 EXTRA_ARGS="--os win"
@@ -62,6 +62,10 @@ OUTPUT=$(echo "$OUTPUT" | head -n -1 | grep -E -v '^\[INFO\] (sessionToken|prelo
 echo "$OUTPUT"
 
 if [ $SIGNAL_PENDING ]; then exit; fi
+
+# Workaround for openconnect prompting for cookie twice:
+CMD=$(echo "$CMD" | sed -e 's/printf '\''\(.\+\?\)\\n\(.\+\?\)'\'' |/printf '\''\1\\n\2\\n\1'\'' |/')
+
 eval "$CMD &"
 PID=$!
 

@@ -62,10 +62,6 @@ OUTPUT=$(echo "$OUTPUT" | head -n -1 | grep -E -v '^\[INFO\] (sessionToken|prelo
 echo "$OUTPUT"
 
 if [ $SIGNAL_PENDING ]; then exit; fi
-
-# Workaround for openconnect prompting for cookie twice:
-CMD=$(echo "$CMD" | sed -e 's/printf '\''\(.\+\?\)\\n\(.\+\?\)'\'' |/printf '\''\1\\n\2\\n\1'\'' |/')
-
 eval "$CMD &"
 PID=$!
 

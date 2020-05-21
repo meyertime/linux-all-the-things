@@ -23,6 +23,7 @@ This is probably very specific to my workplace.  However, at least some others h
 6. Set `gateway`.  When connecting to the VPN, openconnect may prompt for the gateway to connect to.  Since the script is piping the authentication token into openconnect, it will not be able to receive input from the user.  If you set `gateway`, then the script will also pipe a response to the gateway question.  If you're not sure, leave it blank and continue.  If openconnect has an error along the lines of `fgets (stdin): Resource temporarily unavailable`, look for a prompt with a list of gateways and enter the name of one in the configuration file.
 7. Set `openconnect_args` to `--os win --csd-wrapper=hipreport.sh`.  The VPN may not be configured to allow Linux, so `--os win` makes it report that it is Windows.  More on the `--csd-wrapper` option later.
 8. By default, `gp-okta.py` will print the command to run openconnect.  If you want it to execute the command instead of simply printing it, set `execute` to `1`.  I found it easier to leave if off for now until I got it working.
+9. You may want to set `openconnect_fmt` to avoid executing `openconnect` just to find out the version.  Later instructions around NetworkManager integration will also break this auto-detection.  For `openconnect` version 8.10+, set `openconnect_fmt = <cookie><gateway_name><cookie>`.
 
 ## Configure your HIP report
 

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$(whoami)" != "nm-openconnect" ]; then
+    openconnect.real "$@"
+    exit $?
+fi
+
 PID=
 SIGNAL_PENDING=
 function handle_signal {

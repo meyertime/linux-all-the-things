@@ -108,6 +108,7 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
 10. Create a wrapper script to replace the `openconnect` binary.
     1. Unfortunately, this is the only way I found to hook into the connection process.  It means that updates to `openconnect` may potentially break things.  A better solution would probably be to enhance the [openconnect plugin for Network Manager](https://github.com/GNOME/NetworkManager-openconnect) to support Okta / SAML authentication.
     2. Note that this will also affect any use of openconnect anywhere anytime.  In my case, this is the only thing I am using openconnect for anyway, so it doesn't matter to me.
+        - Since writing this, I have improved the wrapper script to run `openconnect` normally when not running as the `nm-openconnect` user.  Now, for example, I can run `openconnect` from the terminal and it will work normally as expected.
     3. Rename `/usr/bin/openconnect` to `openconnect.real`.
     4. Create the wrapper script file `/usr/bin/openconnect.wrapper.sh`.
         - In this repository, [openconnect.wrapper.sh](../src/openconnect.wrapper.sh) is provided.  It takes parameters and standard input from the Network Manager plugin, runs `gp-okta.py`, does some processing, and runs `openconnect.real` with the correct arguments.  It also traps signals and passes them on to openconnect so that it will terminate properly.

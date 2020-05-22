@@ -1,0 +1,9 @@
+[Trigger]
+Type = File
+Operation = Install
+Operation = Upgrade
+Target = usr/bin/openconnect
+
+[Action]
+When = PostTransaction
+Exec = /usr/bin/openconnect.wrapper.install.sh

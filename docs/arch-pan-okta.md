@@ -107,6 +107,7 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
     5. `systemctl restart NetworkManager.service`
 10. Create a wrapper script to replace the `openconnect` binary.
     1. Unfortunately, this is the only way I found to hook into the connection process.  It means that updates to `openconnect` may potentially break things.  A better solution would probably be to enhance the [openconnect plugin for Network Manager](https://github.com/GNOME/NetworkManager-openconnect) to support Okta / SAML authentication.
+        - Since writing this, I wrote a pacman hook to fix this whenever `openconnect` is updated.  More on that later.
     2. Note that this will also affect any use of openconnect anywhere anytime.  In my case, this is the only thing I am using openconnect for anyway, so it doesn't matter to me.
         - Since writing this, I have improved the wrapper script to run `openconnect` normally when not running as the `nm-openconnect` user.  Now, for example, I can run `openconnect` from the terminal and it will work normally as expected.
     3. Rename `/usr/bin/openconnect` to `openconnect.real`.
@@ -116,6 +117,8 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
         - Edit any variables, such as file paths, as needed.
     5. Create a symbolic link to the wrapper script.
         1. `ln -s /usr/bin/openconnect.wrapper.sh /usr/bin/openconnect`
+    6. In this repository, [openconnect.wrapper.install.sh](../src/openconnect.wrapper.install.sh) will perform the above steps to move the real `openconnect` binary and replace it with a link to the wrapper.  This is handy for restoring the function after `openconnect` is upgraded.  Copy it to `/usr/bin/`.
+    7. In this repository, [openconnect.wrapper.pacman.hook](../src/openconnect.wrapper.pacman.hook) will run this install script whenever `/usr/bin/openconnect` is changed when installing or upgrading a package.  Copy it to `/usr/share/libalpm/hooks/`.
 11. The wrapper script uses `kdialog` to prompt for the password.
     1. Install the `kdialog` package.
     2. `xhost +si:localuser:nm-openconnect` to grant access to the local `nm-openconnect` user to use the X window system.

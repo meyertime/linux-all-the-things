@@ -13,6 +13,27 @@ I started off with Slic3r, which I found to be the best open-source slicer optio
 
 Used for 3D modeling.  Scales and functions perfectly at least since the 2019-05 release!
 
+### Arduino IDE
+
+I know this isn't necessarily for 3D printing, but I use it for updating the firmware on my 3D printer.
+
+Install `arduino` and `arduino-docs` packages.
+
+To fix scaling:
+
+1. Go to `File` → `Preferences`.
+2. For `Interface scale` uncheck `Automatic` and enter your desired scale.
+3. Click `OK`.
+
+Menus and some dialogs still don't scale right.  I've read about a solution involving a font setting in `~/.gtkrc-2.0`, but I couldn't get it to work for me.
+
+I prefer to keep my home directory more organized; to change the directory for Arduino files:
+
+1. Go to `File` → `Preferences`.
+2. Change `Sketchbook location`; for example: `/home/david/code/arduino`.
+3. Click `OK`.
+4. You may want to move the files from the original location, usually `~/Arduino`.
+
 ## Audio editing
 
 ### Audacity
@@ -37,6 +58,14 @@ The latest version uses GTK3 and the UI elements scale in size nicely.  However,
             #!/bin/sh
             export SSH_ASKPASS='/usr/bin/ksshaskpass'
             ```
+    - TODO: Cover merge tool
+    - Some other settings:
+        - `Git Extensions` → `Git Extensions`
+            - `Show current working directory changes as an artificial commit`: Checked
+            - `Use FileSystemWatcher to check if index is changed`: Checked
+            - `Close Process dialog when process succeeds`: Checked
+        - `Git Extensions` → `Appearance`
+            - `Code font`: `DejaVu Sans Mono, 10`
 
 ## Steam
 

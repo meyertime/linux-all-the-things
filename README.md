@@ -8,6 +8,7 @@ tl;dr: I used mainly Windows for a long time, not because I liked it, but becaus
 - [Arch Linux on Lenovo P50](docs/arch-lenovop50.md)
 - [Arch Linux ARM](docs/arch-arm.md)
 - [Other applications on Arch Linux](docs/arch-other-apps.md)
+- [PulseAudio on Arch Linux](docs/arch-pulseaudio.md)
 - [Descent on Arch Linux](docs/arch-descent.md)
 - [Palo Alto GlobalProtect VPN with Okta authentication](docs/arch-pan-okta.md)
 - [Epson printers on Arch Linux](docs/arch-epson.md)

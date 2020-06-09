@@ -60,6 +60,11 @@ function check()
 {
     echo "Checking directories..."
 
+    if [ ! -e "$DIR" ]; then
+        echo "Error: Canonical path does not exist: $DIR"
+        exit 1
+    fi
+
     declare -a PARTS
     COUNT=0
     while [ "$DIR" != "/" ]; do
@@ -72,6 +77,12 @@ function check()
     while [ $INDEX -ge 0 ]; do
         DIR="${PARTS[INDEX]}"
         SPINDIR="$SPIN$DIR"
+
+        if [ ! -d "$DIR" ]; then
+            echo "Canonical path is not a directory; skipping: $DIR"
+            break
+        fi
+
         if [ ! -e "$SPINDIR" ]; then
             echo "$SPINDIR: Creating"
             mkdir "$SPINDIR"
@@ -83,6 +94,17 @@ function check()
             fi
         fi
         
+        if [ -L "$DIR" ]; then
+            TARGET=$(readlink "$DIR")
+            if [ "$TARGET" == "$SPINDIR" ]; then
+                echo "$SPINDIR: Already linked"
+                break
+            else
+                echo "Error: $SPINDIR linked to wrong target: $TARGET"
+                exit 1
+            fi
+        fi
+
         if [ "$(stat -c '%f' "$SPINDIR")" != "$(stat -c '%f' "$DIR")" ]; then
             echo "$SPINDIR: Changing mode"
             chmod -v --reference="$DIR" "$SPINDIR"

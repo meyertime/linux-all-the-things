@@ -1038,6 +1038,13 @@ Meet `chrony`.  Here's how to set it up:
         server 2.pool.ntp.org offline
         ```
         Note the `offline` part.  This puts `chrony` in offline mode when it starts since your machine probably won't have network access at that time.  You can change it to `iburst` otherwise.
+    2. In my case, my real-time clock (RTC) is really slow.  While Chrony can get and keep the clock accurate while it's running, my time would get way off after turning off the computer.  Here are some settings that help keep the system time and real-time clock accurate even across reboots:
+        ```
+        driftfile /var/lib/chrony/drift    # Save drift information so that Chrony is aware of it across reboots
+        rtcfile /var/lib/chrony/rtc        # Save more information about RTC accuracy when Chrony exits
+        rtconutc                           # Tell Chrony that the RTC is in UTC
+        rtcautotrim 30                     # Tell Chrony to update the RTC with the correct time whenever it gets out-of-sync more than 30 seconds
+        ```
 3. `systemctl enable chronyd --now`
 4. Notify `chrony` when there are network state changes by integrating with `NetworkManager`.
     1. Install the `networkmanager-dispatcher-chrony` AUR package.

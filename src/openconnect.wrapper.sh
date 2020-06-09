@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$(whoami)" != "nm-openconnect" ]; then
+    openconnect.real "$@"
+    exit $?
+fi
+
 PID=
 SIGNAL_PENDING=
 function handle_signal {
@@ -23,7 +28,7 @@ trap 'handle_signal KILL' KILL
 
 echo '> openconnect' "$@"
 
-GP_OKTA_DIR="/usr/local/lib"
+GP_OKTA_DIR="/usr/local/lib/pan-globalprotect-okta"
 GP_OKTA_CONF="$GP_OKTA_DIR/gp-okta.conf"
 CSD_WRAPPER="$GP_OKTA_DIR/hipreport.sh"
 EXTRA_ARGS="--os win"
@@ -54,7 +59,7 @@ PASSWORD=`DISPLAY=:0 kdialog --title "VPN" --password "Enter Okta password:"`
 if [ $? != 0 ]; then exit $?; fi
 
 if [ $SIGNAL_PENDING ]; then exit; fi
-OUTPUT=$(GP_PASSWORD="$PASSWORD" GP_OPENCONNECT_CMD=openconnect.real GP_OPENCONNECT_ARGS="$ARGS" GP_EXECUTE=0 "$GP_OKTA_DIR/gp-okta.py" "$GP_OKTA_CONF")
+OUTPUT=$(GP_PASSWORD="$PASSWORD" GP_OPENCONNECT_CMD=openconnect.real GP_OPENCONNECT_ARGS="$ARGS" GP_EXECUTE=0 GP_OPENCONNECT_CERTS=/tmp/runtime-nm-openconnect/certs "$GP_OKTA_DIR/gp-okta.py" "$GP_OKTA_CONF")
 if [ $? != 0 ]; then echo "$OUTPUT"; exit; fi
 
 CMD=$(echo "$OUTPUT" | tail -n 1)

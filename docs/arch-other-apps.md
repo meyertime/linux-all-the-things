@@ -43,6 +43,12 @@ The latest version uses GTK3 and the UI elements scale in size nicely.  However,
 1. Install the `audacity` package.
 2. If you're using dark theme, it will look messed up at first.  Go to `Edit` → `Preferences` → `Interface` and change `Theme` to `Dark`.
 
+I had trouble getting audio to work on the Lenovo P50.  None of the sound cards showed up in the list other than the ones over HDMI.  I think it is because Audacity uses ALSA and requires exclusive access, whereas my Arch Plasma setup uses PulseAudio as a software mixing layer and probably monopolized the devices.  Getting Audacity to use PulseAudio is a little wonky:
+
+1. Install the `alsa-plugins` package.
+2. In Audacity, keep the host set to `ALSA` and set the playback and recording devices to `pulse`.
+3. It will use the default devices configured in PulseAudio by default.  To change, use `pavucontrol` or similar PulseAudio utility.
+
 ## Git GUI client
 
 - GitAhead - seems pretty full-featured, but has a strange interface...
@@ -74,3 +80,15 @@ The latest version uses GTK3 and the UI elements scale in size nicely.  However,
 3. The locale `en_US.UTF-8` is required and must be generated.  If you followed the instructions in this repository to install Arch Linux, you probably already have this locale unless you chose a different one.
 4. Steam relies on Microsoft fonts; install `ttf-liberation` to get free substitutes.
 5. Install `steam` package.
+
+## Integrated Development Environment (IDE)
+
+### IntelliJ IDEA
+
+With the default setup, I have run into this error when trying to edit Markdown files: `Tried to use preview panel provider (JavaFX WebView), but it is unavailable. Reverting to default.`  Installing using this setup worked:
+
+1. Install `intellij-idea-community-edition-no-jre` AUR package.
+2. Install Java 8 (`jdk8-openjdk`).
+3. Make sure optional dependency `java8-openjfx` is installed.
+4. In IntelliJ, install the `Choose Runtime` plugin.
+5. Use the plugin to select the 1.8 runtime.

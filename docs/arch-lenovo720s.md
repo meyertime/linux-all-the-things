@@ -422,6 +422,11 @@ My laptop has a 4k screen, so obviously scaling is necessary.  Scaling is a bit 
     2. Adjust taskbar height if necessary.
         1. Click the configure icon at the right edge of the bar.
         2. Find the `Height` button.  Drag it with the mouse to adjust the height.
+    3. This is more of a tweak than a fix:  You can configure the task manager to show only one row which allows you to keep it slightly taller without wrapping the buttons.  Instead, the text inside wraps, which is handy.
+        1. Click the configure icon at the right edge of the bar.
+        2. Hover over the task manager and click `Configure...` in the menu that appears.  This opens `Task Manager Settings`.
+        3. Under `Appearance`, change `Maximum rows` to `1`.
+        4. Click `OK`.
 4. Fix mouse cursor scaling
     1. For the most part, the cursor scaling seems to work out of the box.  I did notice one instance where it was wrong: The cursor was tiny when hovering over title bars.  The following will make the scale consistent, but may prevent proper scaling of external monitors with different scales.
     2. Open `System Settings`
@@ -798,6 +803,15 @@ If you installed the `kde-applications` package, you already have a ton of appli
             3. Go to `LibreOffice` → `View`.
             4. Under `Icon style` select `Breeze (dark)`.
             5. Click `OK`.
+- Document viewer
+    - Okular
+        - Views PDFs.  Not as full-featured as Adobe Reader, but decent for simply viewing docs.  It's a KDE app, so integrates well visually.
+    - Boomaga
+        - This app is specifically designed for printing documents.  Similar to Adobe, it can print multiple pages per sheet and booklets.
+        - It can be set up as a virtual printer in order to integrate with other applications.  To do so, use the CUPS administration pages to add a printer and choose the detected local Boomaga printer.
+        - You can also launch the app directly and open supported documents for printing, including PDF.
+    - Adobe Reader
+        - There is an AUR package `acroread` for installing Adobe Reader.  It worked for me at one time, but no longer.  It crashes immediately when starting.  I guess it's a really old version, because Adobe dropped Linux support some time ago.  I do not recommend using it.
 - Video player
     - VLC
 - Music player
@@ -1024,6 +1038,13 @@ Meet `chrony`.  Here's how to set it up:
         server 2.pool.ntp.org offline
         ```
         Note the `offline` part.  This puts `chrony` in offline mode when it starts since your machine probably won't have network access at that time.  You can change it to `iburst` otherwise.
+    2. In my case, my real-time clock (RTC) is really slow.  While Chrony can get and keep the clock accurate while it's running, my time would get way off after turning off the computer.  Here are some settings that help keep the system time and real-time clock accurate even across reboots:
+        ```
+        driftfile /var/lib/chrony/drift    # Save drift information so that Chrony is aware of it across reboots
+        rtcfile /var/lib/chrony/rtc        # Save more information about RTC accuracy when Chrony exits
+        rtconutc                           # Tell Chrony that the RTC is in UTC
+        rtcautotrim 30                     # Tell Chrony to update the RTC with the correct time whenever it gets out-of-sync more than 30 seconds
+        ```
 3. `systemctl enable chronyd --now`
 4. Notify `chrony` when there are network state changes by integrating with `NetworkManager`.
     1. Install the `networkmanager-dispatcher-chrony` AUR package.

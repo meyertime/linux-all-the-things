@@ -23,6 +23,7 @@ This is probably very specific to my workplace.  However, at least some others h
 6. Set `gateway`.  When connecting to the VPN, openconnect may prompt for the gateway to connect to.  Since the script is piping the authentication token into openconnect, it will not be able to receive input from the user.  If you set `gateway`, then the script will also pipe a response to the gateway question.  If you're not sure, leave it blank and continue.  If openconnect has an error along the lines of `fgets (stdin): Resource temporarily unavailable`, look for a prompt with a list of gateways and enter the name of one in the configuration file.
 7. Set `openconnect_args` to `--os win --csd-wrapper=hipreport.sh`.  The VPN may not be configured to allow Linux, so `--os win` makes it report that it is Windows.  More on the `--csd-wrapper` option later.
 8. By default, `gp-okta.py` will print the command to run openconnect.  If you want it to execute the command instead of simply printing it, set `execute` to `1`.  I found it easier to leave if off for now until I got it working.
+9. You may want to set `openconnect_fmt` to avoid executing `openconnect` just to find out the version.  Later instructions around NetworkManager integration will also break this auto-detection.  For `openconnect` version 8.10+, set `openconnect_fmt = <cookie><gateway_name><cookie>`.
 
 ## Configure your HIP report
 
@@ -106,7 +107,9 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
     5. `systemctl restart NetworkManager.service`
 10. Create a wrapper script to replace the `openconnect` binary.
     1. Unfortunately, this is the only way I found to hook into the connection process.  It means that updates to `openconnect` may potentially break things.  A better solution would probably be to enhance the [openconnect plugin for Network Manager](https://github.com/GNOME/NetworkManager-openconnect) to support Okta / SAML authentication.
+        - Since writing this, I wrote a pacman hook to fix this whenever `openconnect` is updated.  More on that later.
     2. Note that this will also affect any use of openconnect anywhere anytime.  In my case, this is the only thing I am using openconnect for anyway, so it doesn't matter to me.
+        - Since writing this, I have improved the wrapper script to run `openconnect` normally when not running as the `nm-openconnect` user.  Now, for example, I can run `openconnect` from the terminal and it will work normally as expected.
     3. Rename `/usr/bin/openconnect` to `openconnect.real`.
     4. Create the wrapper script file `/usr/bin/openconnect.wrapper.sh`.
         - In this repository, [openconnect.wrapper.sh](../src/openconnect.wrapper.sh) is provided.  It takes parameters and standard input from the Network Manager plugin, runs `gp-okta.py`, does some processing, and runs `openconnect.real` with the correct arguments.  It also traps signals and passes them on to openconnect so that it will terminate properly.
@@ -114,6 +117,8 @@ Doing this makes it easy to connect and disconnect with a few simple clicks.  It
         - Edit any variables, such as file paths, as needed.
     5. Create a symbolic link to the wrapper script.
         1. `ln -s /usr/bin/openconnect.wrapper.sh /usr/bin/openconnect`
+    6. In this repository, [openconnect.wrapper.install.sh](../src/openconnect.wrapper.install.sh) will perform the above steps to move the real `openconnect` binary and replace it with a link to the wrapper.  This is handy for restoring the function after `openconnect` is upgraded.  Copy it to `/usr/bin/`.
+    7. In this repository, [openconnect.wrapper.pacman.hook](../src/openconnect.wrapper.pacman.hook) will run this install script whenever `/usr/bin/openconnect` is changed when installing or upgrading a package.  Copy it to `/usr/share/libalpm/hooks/`.
 11. The wrapper script uses `kdialog` to prompt for the password.
     1. Install the `kdialog` package.
     2. `xhost +si:localuser:nm-openconnect` to grant access to the local `nm-openconnect` user to use the X window system.

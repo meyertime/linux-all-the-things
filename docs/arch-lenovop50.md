@@ -126,3 +126,13 @@ Here's what I know so far:
 ## Auto-disable wifi when network cable plugged in
 
 Drop [99-wlan](../src/etc/NetworkManager/dispatcher.d/99-wlan) into `/etc/NetworkManager/dispatcher.d/` and make sure it has execute permission.
+
+## Virtual audio devices
+
+JACK is really powerful, but I need something simple and easy to use and configure.  ALSA has a module called `snd-aloop` which does the trick.
+
+1. Create the file `/etc/modules-load.d/aloop.conf` with the content `snd-aloop`.
+    - This causes the `snd-aloop` kernel module to automatically load at startup.
+2. Create the file `/etc/modprobe.d/aloop.conf` with the content `options snd-aloop enable=1,1`.
+    - This configures `snd-aloop` to have 2 virtual loopback devices.
+3. Reboot for these settings to take effect.

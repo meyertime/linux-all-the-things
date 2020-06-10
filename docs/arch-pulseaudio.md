@@ -43,7 +43,7 @@ pactl set-default-sink $NEW_SINK_THAT_APPS_SHOULD_USE_INSTEAD
 
 As mentioned, the above echo cancellation works OK for some kinds of noise, but you will want more.  For example, it does not filter things like typing, breathing, or other random noises that aren't speaking.  For this, I found a noise gate works well.
 
-Install the `swh-plugins` package.  This is a collection of LADSPA audio effects, including some noise gates, which can be used by PulseAudio, among other things.  Then:
+Install `ladspa` and `swh-plugins`, which is a collection of LADSPA audio effects, including some noise gates, which can be used by PulseAudio, among other things.  Then:
 
 ```
 # Create a null sink that will be used to represent the final output that applications should use

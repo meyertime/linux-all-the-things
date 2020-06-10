@@ -8,7 +8,8 @@ WEBRTC_SOURCE=voice_webrtc_source
 GATE_SINK=voice_gate
 GATE_SOURCE=voice_gate.monitor
 FINAL_SINK=voice_final
-FINAL_SOURCE=voice_final.monitor
+FINAL_MONITOR=voice_final.monitor
+FINAL_SOURCE=voice_final_source
 
 pactl load-module module-echo-cancel \
     use_master_format=1 \
@@ -41,7 +42,7 @@ pactl load-module module-ladspa-sink \
     sink_master=$FINAL_SINK \
     plugin=gate_1410 \
     label=gate \
-    control=500,4000,-36,25,75,250,-90,0 \
+    control=500,4000,-42,25,75,250,-90,0 \
     sink_properties='device.description="Voice\ Gate"'
 
 pactl load-module module-loopback \
@@ -49,6 +50,11 @@ pactl load-module module-loopback \
     sink=$GATE_SINK \
     source_dont_move=true \
     sink_dont_move=true
+
+pactl load-module module-virtual-source \
+    source_name=$FINAL_SOURCE \
+    source_properties='device.description="Voice\ Final\ Input"' \
+    master=$FINAL_MONITOR
 
 pactl set-default-source $FINAL_SOURCE
 

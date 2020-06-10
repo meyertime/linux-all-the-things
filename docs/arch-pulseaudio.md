@@ -5,7 +5,7 @@ Like most things on Linux, audio is not a single built-in black-box system, but 
 Some of the concepts to get a grasp of in PulseAudio are:
 
 - Sink:  A "sink" is basically an output.  It's a place where you can send audio.  All audio sent to a sink is mixed together.  There may be a sink for your headphone jack, for example.  The mix of audio sent to the sink is then sent to the headphone output.
-- Source:  A "source" is bascially an input.  It's a place where you can get audio.  There may be a sink for your microphone, for example.  The audio picked up by the microphone is made available as a source.
+- Source:  A "source" is basically an input.  It's a place where you can get audio.  There may be a sink for your microphone, for example.  The audio picked up by the microphone is made available as a source.
 - Monitor:  Each sink also has a "monitor" source.  Thus, the audio that is being sent to a sink can be accessed as a source through its monitor.  (Yeah, I know, this is where it gets confusing.)  Monitors are usually hidden from user interfaces, however, but you can use command line tools or more advanced GUIs (like PulseAudio Volume Control) to work with them.
 - Null Sink:  Creating a "null sink" is handy sometimes for setting up different kinds of processing to happen in PulseAudio without having to use actual client applications.  It's just a sink with no actual physical hardware output associated with it.  Therefore, applications can send audio to it, and you can access that audio through its monitor source.
 - Loopback:  This is another handy tool for setting up audio processing.  It simply takes audio from a source and feeds it to a sink.

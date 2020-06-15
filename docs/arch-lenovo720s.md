@@ -1062,17 +1062,23 @@ I ran into those issues the one time I updated the firmware, so I do not know fo
 1. Fully shut down Windows (see that section).
 2. For good measure, boot into Linux to make sure Windows is fully shut down, then shut down the computer.
 3. Boot into UEFI firmware setup.
-    1. Reset to factory defaults.
-    2. Save and exit.
+    1. Write down all your current settings on paper.
+    2. Reset to factory defaults (optional).
+        - Since originally writing this, I did another UEFI firmware update and tried doing this without resetting to factory defaults.  It worked; however, the BIOS update utility did reset everything after the update.  There is a point where you can enter UEFI setup and set everything back before booting again, however.  I lost my GRUB boot entry in the process, but I don't know if that was a result of doing this trick or if that's what would have happened anyway.  In any case, it's fairly easy to restore the GRUB boot entry.
+    3. Save and exit.
 4. Boot into Windows.
     1. If done correctly, it should boot normally despite the change in Intel storage mode.
     2. Download the firmware update utility from the Lenovo website.  I find it easiest to simply enter the serial number off the bottom of the laptop.  This ensures that you get the right software.
-    3. Run the update utility and follow the instructions.  It will involve rebooting.
-    4. Shut down Windows.
+        - Alternatively, if you have Lenovo Vantage installed, you can just run that.
+    3. Run the update utility and follow the instructions.
+        1. At some point, it will automatically reboot.
+        2. After rebooting, you will see a command line utility flashing the firmware.
+        3. After flashing, it will automatically reboot again.  This is the point where you can hold F2 to enter the UEFI setup utility before booting with the cleared settings.
 5. Boot into UEFI firmware setup.
     1. Change Intel storage mode back to ACPI.
     2. Disable secure boot.
-    3. Save and exit.
+    3. Change any other settings to match what you wrote down before.
+    4. Save and exit.
 6. Boot into Windows to make sure it will boot correctly with the changed storage mode.
     1. Shut down Windows.
 7. Boot into UEFI firmware setup.
@@ -1080,6 +1086,22 @@ I ran into those issues the one time I updated the firmware, so I do not know fo
     2. Change any other settings to your preference.
     3. Save and exit.
 8. Boot into Linux.
+
+#### Restore GRUB UEFI boot entry
+
+For one reason or another, you may lose the GRUB UEFI boot entry, in which case, the computer will boot directly to Windows, and GRUB will not appear in the UEFI setup boot section.  Here's how to restore it:
+
+1. Insert your Arch Linux Live boot USB drive.
+2. Hold F12 when booting the computer to enter the boot menu and select the USB drive to boot from.
+3. Mount and change root into your Linux system:
+    1. `mount /dev/nvme0n1p3 /mnt` to mount Linux partition.
+        - Double-check that this is the right partition on your system.  For example, `ls /mnt` to see if the contents are what you expect.
+    2. `mount /dev/nvme0n1p1 /mnt/boot` to mount EFI boot partition.
+        - The `boot` directory _should_ already exist on your system.  Double-check that this is the right partition for your system.  For example, `ls /mnt/boot` to see if the contents look like an EFI boot partition.
+    3. `arch-chroot /mnt`
+4. `grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB`
+    - This should be the same command you used when originally installing GRUB.
+    - Since GRUB is already installed, it should skip the main installation and just create the EFI boot entry.
 
 ### Downgrading packages
 

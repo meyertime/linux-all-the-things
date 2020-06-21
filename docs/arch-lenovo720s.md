@@ -782,6 +782,14 @@ If you installed the `kde-applications` package, you already have a ton of appli
 - Remote Desktop Client
     - Remmina
         - For RDP support, install `freerdp` package or `remmina-plugin-rdesktop` AUR package.
+            - At the time of this writing, it appears that rdesktop is no longer being maintained, whereas freerdp is.
+        - To fix scaling for RDP:
+            1. Click the menu icon in the title bar of the main Remmina window and click `Preferences`.
+            2. Go to the RDP tab.
+            3. Set device scale factor to `100%`.
+                - I have experimented with this setting, and it does not appear to make any difference.  However, setting it to something is required to enable the other scaling field.
+            4. Set desktop scale factor to match your desktop environment's scale factor or some other number if desired.  For example, if your desired scale factor is `200%`, enter `200`.
+            5. Close the preferences window.
 - Text editor
     - Visual Studio Code
         - Yeah, it's more for programming than just text editing, but it makes a good text editor too.

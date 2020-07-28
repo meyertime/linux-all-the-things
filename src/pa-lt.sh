@@ -26,14 +26,18 @@ HOST_SINK=lt_host
 RECORDER_SINK=lt_record
 SILENCE_SINK=lt_silence
 
+CLOCK_SOURCE=lt_clock_mic
+RECORDER_SOURCE=lt_record_mic
+SILENCE_SOURCE=lt_silence_mic
+
 function setup {
     pactl load-module module-null-sink \
         sink_name=$CLOCK_SINK \
         sink_properties='device.description="LT\ Clock"'
 
-    pactl load-module module-null-sink \
-        sink_name=$HOST_SINK \
-        sink_properties='device.description="LT\ Host"'
+    #pactl load-module module-null-sink \
+    #    sink_name=$HOST_SINK \
+    #    sink_properties='device.description="LT\ Host"'
 
     pactl load-module module-null-sink \
         sink_name=$RECORDER_SINK \
@@ -45,24 +49,39 @@ function setup {
 
     pactl set-sink-mute $SILENCE_SINK 1
 
-    pactl load-module module-loopback \
-        source=$SOURCE \
-        sink=$HOST_SINK \
-        source_dont_move=true \
-        sink_dont_move=true \
-        latency_msec=1
+    pactl load-module module-virtual-source \
+        source_name=$CLOCK_SOURCE \
+        source_properties='device.description="LT\ Clock\ Mic"' \
+        master=$CLOCK_SINK.monitor
 
-    pactl load-module module-loopback \
-        source=$CLOCK_SINK.monitor \
-        sink=$HOST_SINK \
-        source_dont_move=true \
-        sink_dont_move=true
+    pactl load-module module-virtual-source \
+        source_name=$RECORDER_SOURCE \
+        source_properties='device.description="LT\ Recorder\ Mic"' \
+        master=$RECORDER_SINK.monitor
 
-    pactl load-module module-loopback \
-        source=$CLOCK_SINK.monitor \
-        sink=$SINK \
-        source_dont_move=true \
-        sink_dont_move=true
+    pactl load-module module-virtual-source \
+        source_name=$RECORDER_SOURCE \
+        source_properties='device.description="LT\ Silence\ Mic"' \
+        master=$RECORDER_SINK.monitor
+
+    #pactl load-module module-loopback \
+    #    source=$SOURCE \
+    #    sink=$HOST_SINK \
+    #    source_dont_move=true \
+    #    sink_dont_move=true \
+    #    latency_msec=1
+
+    #pactl load-module module-loopback \
+    #    source=$CLOCK_SINK.monitor \
+    #    sink=$HOST_SINK \
+    #    source_dont_move=true \
+    #    sink_dont_move=true
+
+    #pactl load-module module-loopback \
+    #    source=$CLOCK_SINK.monitor \
+    #    sink=$SINK \
+    #    source_dont_move=true \
+    #    sink_dont_move=true
 }
 
 function cleanup {
@@ -165,7 +184,7 @@ case $ACTION in
     setup)
         setup
         defaults
-        move-apps
+        #move-apps
         ;;
 
     cleanup)

@@ -13,9 +13,16 @@ export XAUTHORITY=/home/david/.Xauthority
 #xrandr 2>&1 >>/tmp/rnr.log
 
 LAPTOP=eDP-1-1
-THUNDERBOLT=DP-4
+THUNDERBOLT1=DP-4
+THUNDERBOLT2=DP-5
 DISPLAYPORT=DP-3
 HDMI=DP-1
+
+INT=${INT:-$LAPTOP}
+EXT1=${EXT1:-$THUNDERBOLT1}
+EXT2=${EXT2:-$DISPLAYPORT}
+
+INTEL=eDP-1
 
 SDDM=
 DEBOUNCE=
@@ -23,23 +30,23 @@ DEBOUNCE=
 function init()
 {
     xrandr --newmode "3200x1800_60.00"  492.00  3200 3456 3800 4400  1800 1803 1808 1865 -hsync +vsync
-    xrandr --addmode $LAPTOP 3200x1800_60.00
+    xrandr --addmode $INT 3200x1800_60.00
 
     xrandr --newmode "2880x1620_60.00"  396.25  2880 3096 3408 3936  1620 1623 1628 1679 -hsync +vsync
-    xrandr --addmode $LAPTOP 2880x1620_60.00
+    xrandr --addmode $INT 2880x1620_60.00
 
     xrandr --newmode "2200x1234_60.00"  227.75  2200 2352 2584 2968  1234 1237 1247 1280 -hsync +vsync
-    xrandr --addmode $LAPTOP 2200x1234_60.00
+    xrandr --addmode $INT 2200x1234_60.00
 }
 
 function nvidiaDisableAllTransforms()
 {
     # Prevents RRSetScreenSize error later on
     xrandr \
-        --output $THUNDERBOLT --transform none \
-        --output $DISPLAYPORT --transform none \
+        --output $EXT1 --transform none \
+        --output $EXT2 --transform none \
         --output $HDMI --transform none \
-        --output $LAPTOP --transform none || true
+        --output $INT --transform none || true
 }
 
 function nvidiaUHDMobileProfile()
@@ -49,10 +56,10 @@ function nvidiaUHDMobileProfile()
     echo "Before xrandr"
     #xrandr --fb 3840x2160 \
     xrandr \
-        --output $THUNDERBOLT --off \
-        --output $DISPLAYPORT --off \
+        --output $EXT1 --off \
+        --output $EXT2 --off \
         --output $HDMI --off \
-        --output $LAPTOP --mode 3200x1800_60.00 --pos 0x0 --primary
+        --output $INT --mode 3200x1800_60.00 --pos 0x0 --primary
 
     echo "After xrandr"
 }
@@ -62,15 +69,15 @@ function nvidiaFHDMobileProfile()
     #nvidiaDisableAllTransforms
 
     for i in {1..3}; do
-        xrandr --output $LAPTOP --mode 2200x1234_60.00 && break || sleep 5
+        xrandr --output $INT --mode 2200x1234_60.00 && break || sleep 5
     done
 
     for i in {1..3}; do
         xrandr \
-            --output $THUNDERBOLT --off \
-            --output $DISPLAYPORT --off \
+            --output $EXT1 --off \
+            --output $EXT2 --off \
             --output $HDMI --off \
-            --output $LAPTOP --mode 2200x1234_60.00 --pos 0x0 --primary \
+            --output $INT --mode 2200x1234_60.00 --pos 0x0 --primary \
             && break || sleep 5
     done
 }
@@ -81,71 +88,71 @@ function nvidiaUHDWorkProfile()
 
     # 4/3 scaling, combined with 200% global DPI equals 150%
     #xrandr --fb 10240x5040 \
-    #    --output $THUNDERBOLT --mode 3840x2160 --scale-from 5120x2880 --pos 0x0 --panning 5120x2880+0+0 \
-    #    --output $DISPLAYPORT --mode 3840x2160 --scale-from 5120x2880 --pos 5120x0 --panning 5120x2880+5120+0 --primary \
-    #    --output $LAPTOP --mode 3840x2160 --transform none --pos 3200x2880 || true
+    #    --output $EXT1 --mode 3840x2160 --scale-from 5120x2880 --pos 0x0 --panning 5120x2880+0+0 \
+    #    --output $EXT2 --mode 3840x2160 --scale-from 5120x2880 --pos 5120x0 --panning 5120x2880+5120+0 --primary \
+    #    --output $INT --mode 3840x2160 --transform none --pos 3200x2880 || true
     #xrandr --fb 10240x5040 \
-    #    --output $THUNDERBOLT --mode 3840x2160 --scale-from 5120x2880 --pos 0x0 \
-    #    --output $DISPLAYPORT --mode 3840x2160 --scale-from 5120x2880 --pos 5120x0 --primary \
-    #    --output $LAPTOP --mode 3840x2160 --transform none --pos 3200x2880 || true
+    #    --output $EXT1 --mode 3840x2160 --scale-from 5120x2880 --pos 0x0 \
+    #    --output $EXT2 --mode 3840x2160 --scale-from 5120x2880 --pos 5120x0 --primary \
+    #    --output $INT --mode 3840x2160 --transform none --pos 3200x2880 || true
 
     # 3/4 scaling of laptop monitor (2880x1620)
     #xrandr --fb 7680x3780 \
     #xrandr \
-    #    --output $THUNDERBOLT --mode 3840x2160 --pos 0x0 \
-    #    --output $DISPLAYPORT --mode 3840x2160 --pos 3840x0 --primary \
-    #    --output $LAPTOP --mode 2880x1620 --pos 2400x2160 || true
+    #    --output $EXT1 --mode 3840x2160 --pos 0x0 \
+    #    --output $EXT2 --mode 3840x2160 --pos 3840x0 --primary \
+    #    --output $INT --mode 2880x1620 --pos 2400x2160 || true
 
     if [ "$SDDM" == "1" ]; then
         for i in {1..3}; do
             xrandr \
-                --output $THUNDERBOLT --mode 3840x2160 --pos 0x0 \
-                --output $DISPLAYPORT --mode 3840x2160 --pos 0x0 --primary \
-                --output $LAPTOP --mode 3840x2160 --transform none --pos 0x0 \
+                --output $EXT1 --mode 3840x2160 --pos 0x0 \
+                --output $EXT2 --mode 3840x2160 --pos 0x0 --primary \
+                --output $INT --mode 3840x2160 --transform none --pos 0x0 \
                 --output $HDMI --off \
                 && break || sleep 5
         done
     else
         #for i in {1..3}; do
         #    xrandr \
-        #        --output $THUNDERBOLT --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 --primary \
-        #        --output $LAPTOP --off \
-        #        --output $DISPLAYPORT --off \
+        #        --output $EXT1 --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 --primary \
+        #        --output $INT --off \
+        #        --output $EXT2 --off \
         #        --output $HDMI --off \
         #        && break || sleep 5
         #done
         #sleep 5
         #for i in {1..3}; do
         #    xrandr \
-        #        --output $DISPLAYPORT --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 \
+        #        --output $EXT2 --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 \
         #        && break || sleep 5
         #done
         #sleep 5
         #for i in {1..3}; do
         #    xrandr \
-        #        --output $DISPLAYPORT --primary \
+        #        --output $EXT2 --primary \
         #        && break || sleep 5
         #done
         #sleep 5
         #for i in {1..3}; do
         #    xrandr \
-        #        --output $LAPTOP --mode 2880x1620_60.00 --pos 2400x2160 \
+        #        --output $INT --mode 2880x1620_60.00 --pos 2400x2160 \
         #        && break || sleep 5
         #done
         for i in {1..3}; do
             xrandr \
-                --output $THUNDERBOLT --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 \
-                --output $DISPLAYPORT --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 --primary \
-                --output $LAPTOP --off \
+                --output $EXT1 --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 \
+                --output $EXT2 --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 --primary \
+                --output $INT --off \
                 --output $HDMI --off \
                 && break || sleep 5
         done
         sleep 5
         for i in {1..3}; do
             xrandr \
-                --output $THUNDERBOLT --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 \
-                --output $DISPLAYPORT --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 --primary \
-                --output $LAPTOP --mode 2880x1620_60.00 --pos 2400x2160 \
+                --output $EXT1 --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 \
+                --output $EXT2 --mode 3840x2160 --pos 3840x0 --panning 3840x2160+3840+0 --primary \
+                --output $INT --mode 2880x1620_60.00 --pos 2400x2160 \
                 --output $HDMI --off \
                 && break || sleep 5
         done
@@ -159,28 +166,28 @@ function nvidiaUHDWorkProfile()
 function nvidiaWorkNotScaledProfile()
 {
     xrandr \
-        --output $THUNDERBOLT --mode 3840x2160 --transform none --pos 0x0 \
-        --output $DISPLAYPORT --mode 3840x2160 --transform none --pos 3840x0 --primary \
-        --output $LAPTOP --mode 3840x2160 --transform none --pos 1920x2160 \
+        --output $EXT1 --mode 3840x2160 --transform none --pos 0x0 \
+        --output $EXT2 --mode 3840x2160 --transform none --pos 3840x0 --primary \
+        --output $INT --mode 3840x2160 --transform none --pos 1920x2160 \
         --output $HDMI --off
 }
 
 function nvidiaHomeNotScaledProfile()
 {
     xrandr \
-        --output $DISPLAYPORT --mode 1920x1200 --transform none --pos 0x0 \
+        --output $EXT2 --mode 1920x1200 --transform none --pos 0x0 \
         --output $HDMI --mode 1920x1200 --transform none --pos 1920x0 --primary \
-        --output $LAPTOP --mode 3840x2160 --transform none --pos 0x1200 \
-        --output $THUNDERBOLT --off
+        --output $INT --mode 3840x2160 --transform none --pos 0x1200 \
+        --output $EXT1 --off
 }
 
 function nvidiaHomeProfile()
 {
     xrandr \
-        --output $DISPLAYPORT --mode 1920x1200 --scale-from 3840x2400 --pos 0x0 \
+        --output $EXT2 --mode 1920x1200 --scale-from 3840x2400 --pos 0x0 \
         --output $HDMI --mode 1920x1200 --scale-from 3840x2400 --pos 3840x0 --primary \
-        --output $LAPTOP --mode 2880x1620 --transform none --pos 2400x2400 \
-        --output $THUNDERBOLT --off
+        --output $INT --mode 2880x1620 --transform none --pos 2400x2400 \
+        --output $EXT1 --off
 }
 
 function nvidiaFHDHomeProfile()
@@ -188,29 +195,29 @@ function nvidiaFHDHomeProfile()
     if [ "$SDDM" == "1" ]; then
         for i in {1..3}; do
             xrandr \
-                --output $DISPLAYPORT --mode 1920x1200 --pos 0x0 \
+                --output $EXT2 --mode 1920x1200 --pos 0x0 \
                 --output $HDMI --mode 1920x1200 --pos 0x0 --primary \
-                --output $LAPTOP --mode 1920x1080 --transform none --pos 0x120 \
-                --output $THUNDERBOLT --off \
+                --output $INT --mode 1920x1080 --transform none --pos 0x120 \
+                --output $EXT1 --off \
                 && break || sleep 5
         done
     else
         for i in {1..3}; do
             xrandr \
-                --output $DISPLAYPORT --mode 1920x1200 --pos 0x0 \
+                --output $EXT2 --mode 1920x1200 --pos 0x0 \
                 --output $HDMI --mode 1920x1200 --pos 1920x0 --primary \
-                --output $LAPTOP --mode 1440x810 --rate 60 --transform none --pos 1200x1200 \
-                --output $THUNDERBOLT --off \
+                --output $INT --mode 1440x810 --rate 60 --transform none --pos 1200x1200 \
+                --output $EXT1 --off \
                 && break || sleep 5
         done
     fi
 
     #for i in {1..3}; do
     #    xrandr \
-    #        --output $DISPLAYPORT --mode 1920x1200 --pos 0x0 \
-    #        --output $LAPTOP --off \
+    #        --output $EXT2 --mode 1920x1200 --pos 0x0 \
+    #        --output $INT --off \
     #        --output $HDMI --off \
-    #        --output $THUNDERBOLT --off \
+    #        --output $EXT1 --off \
     #        && break || sleep 5
     #done
     #sleep 5
@@ -222,9 +229,14 @@ function nvidiaFHDHomeProfile()
     #sleep 5
     #for i in {1..3}; do
     #    xrandr \
-    #        --output $LAPTOP --mode 1440x810 --rate 60 --pos 1200x1200 \
+    #        --output $INT --mode 1440x810 --rate 60 --pos 1200x1200 \
     #        && break || sleep 5
     #done
+}
+
+function intelProfile()
+{
+    xrandr --output $INTEL --mode 3200x1800
 }
 
 # If running from udev rule, fork and run in separate process
@@ -260,9 +272,10 @@ if [ "$PROFILE" == "auto" ]; then
     PROFILE=
     MONITORS=$(xrandr --query | grep '\bconnected\b' | awk '{print $1}')
     NL=$'\n'
-    if [ "$MONITORS" == "$LAPTOP" ]; then PROFILE=mobile; fi
-    if [ "$MONITORS" == "$HDMI$NL$DISPLAYPORT$NL$LAPTOP" ]; then PROFILE=home; fi
-    if [ "$MONITORS" == "$DISPLAYPORT$NL$THUNDERBOLT$NL$LAPTOP" ]; then PROFILE=home; fi
+    if [ "$MONITORS" == "$INT" ]; then PROFILE=mobile; fi
+    if [ "$MONITORS" == "$HDMI$NL$EXT2$NL$INT" ]; then PROFILE=home; fi
+    if [ "$MONITORS" == "$EXT2$NL$EXT1$NL$INT" ]; then PROFILE=home; fi
+    if [ "$MONITORS" == "$INTEL" ]; then PROFILE=intel; fi
 
     if [ "$PROFILE" == "" ]; then
         echo "Could not detect profile!"
@@ -295,6 +308,10 @@ case $PROFILE in
     home)
         #nvidiaFHDHomeProfile
         nvidiaUHDWorkProfile
+        ;;
+
+    intel)
+        intelProfile
         ;;
 
 esac

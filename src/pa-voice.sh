@@ -48,7 +48,7 @@ function setup {
         sink_master=$FINAL_SINK \
         plugin=gate_1410 \
         label=gate \
-        control=500,4000,-42,25,75,250,-90,0 \
+        control=500,4000,-48,10,90,250,-90,0 \
         sink_properties='device.description="Voice\ Gate"'
 
     pactl load-module module-loopback \

@@ -840,6 +840,11 @@ If you installed the `kde-applications` package, you already have a ton of appli
     - Gwenview
 - Image editor
     - GIMP
+- Screen Capture - Linux does not necessarily have a built-in way to take screenshots.  The `PrintScreen` key is just a shortcut that launches the default screenshot application, so you may have to install one.
+    - Spectacle
+        - This is KDE's screenshot app and works fine.
+        - I had some trouble getting the "Rectangular Region" function to work.  It may be related to having a multiple monitor setup.  In any case, when I press "Take New Screenshot", Spectacle disappears and nothing happens.  I was able to get around it by introducing a delay.  Since I don't really want a delay, I put `0.1 seconds`.
+        - In addition to "Copy to Clipboard", you can also use the "Export" feature to open it with an image editor.
 
 ### Fingerprint reader
 

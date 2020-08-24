@@ -775,7 +775,13 @@ If you installed the `kde-applications` package, you already have a ton of appli
 - Archive manager
     - Ark
 - Web browser
-    - Firefox is the most popular open source option.  Support the open web!
+    - Firefox
+        - It's is the most popular open source option.  Support the open web!
+        - Install the `firefox` package.
+        - At the time of writing, by default, Firefox does not allow web pages to choose a sound output; all sound output goes to the default device.  While it is possible to use PulseAudio to switch the output of any given Firefox sink input, it's impossible to tell which of the sink inputs is for which tab or web page.  This is annoying, because typically I use different outputs for communications versus listening to music.  It turns out that Firefox has an experimental feature that fixes this, but it's disabled by default.  To enable:
+            - In Firefox, navigate to `about:config`.  If you see a warning, continue.
+            - Find the setting `media.setsinkid.enabled`.
+            - Double-click it to change it from `false` to `true`.
 - Calculator
     - Qalculate!
     - SpeedCrunch

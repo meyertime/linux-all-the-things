@@ -1,0 +1,20 @@
+.include /etc/pulse/default.pa
+
+# Disable automatically restoring volume/mute/device of streams.  All apps will use default sink and source.
+unload-module module-stream-restore
+
+# Set up "Mute" sink and source
+load-module module-null-sink sink_name=mute_sink sink_properties='device.description="Mute"'
+set-sink-volume mute_sink 0
+set-sink-mute mute_sink 1
+load-module module-virtual-source source_name=mute_source source_properties='device.description="Mute"' master=mute_sink.monitor
+#set-source-volume mute_source 0
+#set-source-mute mute_source 1
+
+# Set up "Aux 1" sink and source
+load-module module-null-sink sink_name=aux1_sink sink_properties='device.description="Aux 1"'
+load-module module-virtual-source source_name=aux1_source source_properties='device.description="Aux 1"' master=aux1_sink.monitor
+
+# Set up "Aux 2" sink and source
+load-module module-null-sink sink_name=aux2_sink sink_properties='device.description="Aux 2"'
+load-module module-virtual-source source_name=aux2_source source_properties='device.description="Aux 2"' master=aux2_sink.monitor

@@ -59,15 +59,17 @@ pactl load-module module-ladspa-sink \
     sink_master=$NEW_SINK_WHOSE_MONITOR_APPS_SHOULD_USE_INSTEAD \
     plugin=gate_1410 \
     label=gate \
-    control=100,4000,-36,25,75,250,-90,0
+    control=500,4000,-48,10,90,250,-90,0
 
 # Create the loopback to connect your microphone input to the noise gate
 # If you set up echo cancellation earlier, you want to use the new source created for that
+# By default, the latency is a little much, so setting `latency_msec=1` will try to minimize it
 pactl load-module module-loopback \
     source=$MIC_SOURCE_OR_ECHO_CANCELLED_SOURCE \
     sink=$NEW_SINK_FOR_THE_NOISE_GATE \
     source_dont_move=true \
-    sink_dont_move=true
+    sink_dont_move=true \
+    latency_msec=1
 
 # You probably want to set the default source
 pactl set-default-source $NEW_SINK_WHOSE_MONITOR_APPS_SHOULD_USE_INSTEAD.monitor
@@ -77,8 +79,7 @@ pactl set-default-source $NEW_SINK_WHOSE_MONITOR_APPS_SHOULD_USE_INSTEAD.monitor
 
 Thus far, we have used `pactl` to make changes to a running PulseAudio server.  However, none of these changes will persist across reboots.
 
-You can create the file `~/.config/pulse/default.pa` to run commands when the PulseAudio server starts.  The file should start with `.include /etc/pulse/default.pa` so that system-wide defaults will still apply.  The commands in this script should be the same except without `pactl` at the beginning.
+You can create the file `~/.config/pulse/default.pa` to run commands when the PulseAudio server starts.  The file should start with `.include /etc/pulse/default.pa` so that system-wide defaults will still apply.  The commands in this script should be the same except without `pactl` at the beginning.  See [default.pa](../src/default.pa) in this repository which does some useful things.
 
-I have not actually done this yet, and you should keep in mind that removable devices like USB headsets may not be available at the time the script is run.  I do not have a solution for that yet other than to put the code in a bash script and run it manually when I need it.
+Keep in mind that removable devices like USB headsets may not be available at the time the script is run.  To get around this, I wrote [pa-monitor.sh](../src/pa-monitor.sh), which uses `pactl` to watch for events from PulseAudio and react to them.  So for example, it automatically sets up the above echo cancellation and noise gate for my headset when I plug it in.  You can set it up to automatically start in KDE by using `System Settings` → `Startup and Shutdown` → `Autostart`, or simply copy or create a link to the script in `~/.config/autostart-scripts/`.
 
-TODO: Make changes permanent

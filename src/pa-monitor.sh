@@ -8,10 +8,10 @@ BUILT_IN_MIC_DESC="Built-in"
 HEADPHONE_AMP=alsa_output.usb-CMEDIA_OriGen_G2-00.analog-stereo
 HEADPHONE_AMP_DESC="OriGen"
 
-HEADSET_MIC=alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.mono-fallback
+HEADSET_MIC=alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.
 HEADSET_MIC_DESC="Headset Raw"
-HEADSET_EAR=alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.analog-stereo
-HEADSET_EAR_DESC="Headset Raw"
+HEADSET_EAR=alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.
+HEADSET_EAR_DESC="Headset"
 
 WEBCAM_MIC=alsa_input.usb-046d_0821_A8E00BD0-00.analog-stereo
 WEBCAM_MIC_DESC="Webcam"
@@ -30,6 +30,8 @@ function read-all {
 }
 
 function on-new {
+    sleep 1
+
     rename-sink $BUILT_IN_OUT "$BUILT_IN_OUT_DESC"
     rename-source $BUILT_IN_MIC "$BUILT_IN_MIC_DESC"
     rename-sink $HEADPHONE_AMP "$HEADPHONE_AMP_DESC"
@@ -38,13 +40,19 @@ function on-new {
     rename-source $WEBCAM_MIC "$WEBCAM_MIC_DESC"
     rename-sink $HDMI_OUT "$HDMI_OUT_DESC"
 
-    if-source $HEADSET_MIC && setup-rtc headset Headset $HEADSET_MIC $HEADSET_EAR
+    SOURCE=$(find-source $HEADSET_MIC)
+    if [ "$SOURCE" != "" ]; then
+        SINK=$(find-sink $HEADSET_EAR)
+        if [ "$SINK" != "" ]; then
+            setup-gate headset Headset $SOURCE $SINK
+        fi
+    fi
 
     on-change
 }
 
 function on-remove {
-    if-source $HEADSET_MIC || cleanup-rtc headset Headset
+    (if-source $HEADSET_MIC && if-sink $HEADSET_EAR) || cleanup-gate headset Headset
 }
 
 function on-change {
@@ -124,6 +132,13 @@ function rename-source {
     fi
 }
 
+function if-sink {
+    SINK=$(find-sink $1)
+    if [ "$SINK" == "" ]; then
+        return 1
+    fi
+}
+
 function if-source {
     SOURCE=$(find-source $1)
     if [ "$SOURCE" == "" ]; then
@@ -148,11 +163,6 @@ function setup-rtc {
 
     WEBRTC_SINK=${NAME}_rtc
     WEBRTC_SOURCE=${NAME}_rtc_source
-    GATE_SINK=${NAME}_gate
-    GATE_SOURCE=${NAME}_gate.monitor
-    FINAL_SINK=${NAME}_final
-    FINAL_MONITOR=${NAME}_final.monitor
-    FINAL_SOURCE=${NAME}_final_source
 
     if-module echo-cancel "source_master=$SOURCE" || (
         pactl load-module module-echo-cancel \
@@ -168,6 +178,40 @@ function setup-rtc {
 
         #pactl set-default-sink $WEBRTC_SINK
     )
+
+    setup-gate $NAME $DESC $WEBRTC_SOURCE $SINK
+}
+
+function cleanup-rtc {
+    NAME=$1
+    DESC=$2
+
+    echo "$DESC no longer detected!  Cleaning up RTC..."
+
+    MODULES=$(echo "$MODULES" | grep -E "^[0-9]+\s+module-(echo-cancel\s+(sink|source)_name=${NAME}_)" | sed -E 's/^([0-9]+).*$/\1/')
+
+    while read MODULE; do
+        if [ -n "$MODULE" ]; then
+            pactl unload-module $MODULE
+        fi
+    done <<<"$MODULES"
+
+    cleanup-gate
+}
+
+function setup-gate {
+    NAME=$1
+    DESC=$2
+    SOURCE=$3
+    SINK=$4
+
+    echo "$DESC detected!  Setting up noise gate..."
+
+    GATE_SINK=${NAME}_gate
+    GATE_SOURCE=${NAME}_gate.monitor
+    FINAL_SINK=${NAME}_final
+    FINAL_MONITOR=${NAME}_final.monitor
+    FINAL_SOURCE=${NAME}_final_source
 
     if-module null-sink sink_name=$FINAL_SINK || (
         pactl load-module module-null-sink \
@@ -190,13 +234,13 @@ function setup-rtc {
             sink_master=$FINAL_SINK \
             plugin=gate_1410 \
             label=gate \
-            control=500,4000,-48,10,90,250,-90,0 \
+            control=500,10000,-54,5,90,250,-90,0 \
             sink_properties="device.description=\"$DESC\ Gate\ Input\""
     )
 
-    if-module loopback source=$WEBRTC_SOURCE || (
+    if-module loopback sink=$GATE_SINK || (
         pactl load-module module-loopback \
-            source=$WEBRTC_SOURCE \
+            source=$SOURCE \
             sink=$GATE_SINK \
             source_dont_move=true \
             sink_dont_move=true \
@@ -224,13 +268,13 @@ function setup-rtc {
     fi
 }
 
-function cleanup-rtc {
+function cleanup-gate {
     NAME=$1
     DESC=$2
 
-    echo "$DESC no longer detected!  Cleaning up RTC..."
+    echo "$DESC no longer detected!  Cleaning up noise gate..."
 
-    MODULES=$(echo "$MODULES" | grep -E "^[0-9]+\s+module-(echo-cancel|(null-sink|ladspa-sink|virtual-source)\s+(sink|source)_name=${NAME}_)" | sed -E 's/^([0-9]+).*$/\1/')
+    MODULES=$(echo "$MODULES" | grep -E "^[0-9]+\s+module-((null-sink|ladspa-sink|virtual-source)\s+(sink|source)_name=${NAME}_)" | sed -E 's/^([0-9]+).*$/\1/')
 
     while read MODULE; do
         if [ -n "$MODULE" ]; then

@@ -641,19 +641,16 @@ The other issue is how quickly the battery drains when suspended.  One way to im
 
 ### Optimize mirror list automatically
 
-1. Install AUR package `reflector-timer`.
-    - `reflector` dependency will be automatically installed if needed.
-2. Edit `/usr/share/reflector-timer/reflector.conf`, for example:
+1. Install `reflector`.  This package now ships with automation built-in.
+2. Edit `/etc/xdg/reflector/reflector.conf`, for example:
     ```
-    AGE=12
-    COUNTRY=US
-    LATEST=30
-    NUMBER=20
-    SORT=rate
-    ### remove an entry if you don't want it as available protocol
-    #PROTOCOL1='-p http'
-    PROTOCOL2='-p https'
-    #PROTOCOL3='-p ftp'
+    --save /etc/pacman.d/mirrorlist
+    --protocol https
+    --country US
+    --age 12
+    --latest 30
+    --sort rate
+    --number 20
     ```
 3. `systemctl enable reflector.timer` to enable the timer.
 4. Test it.

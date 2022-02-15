@@ -744,6 +744,18 @@ Sometimes there are issues when in NVIDIA mode after waking from sleep.  I was a
 2. `sudo grub-mkconfig -o /boot/grub/grub.cfg`
 3. Reboot.
 
+### Fix washed-out colors on some video outputs
+
+Someone somewhere thought it would be a good idea to output video using a limited range for each color (16-235) instead of the full range (0-255).  The result is an inability to display full black, full white, or fully vibrant colors of any kind.  They called this "RGB Limited".  I am at a total loss trying to think of what problem this could possibly solve.  From what I've read, TV is supposed to be "RGB Limited" while computer monitors are supposed to be "RGB Full".  But wouldn't you want vibrant colors when watching TV too?  I'm baffled.  On the other hand, it creates plenty of problems.  For example, this laptop defaults to "RGB Limited" when a display is connected to an HDMI output, while defaulting to "RGB Full" with DisplayPort outputs.
+
+Fortunately, it's easy to switch to "RGB Full":
+
+1. `xrandr --output DP-1-1 --set "Broadcast RGB" Full`
+    - Substitute your output of choice if it's not `DP-1-1`.
+2. Breathe a sigh of relief as the colors of your monitor instantly improve.
+3. Look on in horror when the awful washed-out colors return after you reboot.
+4. Find a way to make the setting permanent or at least automatic.
+
 ### Fix font issues
 
 If you're reading this, you probably already know what I'm talking about.  For me, the fonts seemed fine at first until randomly, for some reason, the fonts in Firefox changed and it didn't seem to be picking the right font.

@@ -452,7 +452,7 @@ There are a number of options, but I am going with `pamac`.  It comes from Manja
         - `Check for updates from AUR` - Otherwise, you will not see updates from AUR
         - `Check for development packages updates` - Sometimes AUR packages need to be rebuilt when dependencies are updated.
     5. While you're there, under the `General` tab I recommend ticking `Remove unrequired dependencies` as well.
-7. Use pamac to install `pamac-tray-appindicator` from AUR.
+7. Use pamac to install `pamac-tray-icon-plasma` from AUR.
     - Log out and back in to get the tray icon to appear.
 8. Optionally, use pamac to remove `Discovery` which is the package management GUI that comes bundled with KDE Plasma.  Discovery cannot handle Arch packages without a backend, and the only backend that supports Arch packages is PackageKit, and PackageKit is not recommended because it allows package installation without root access, and the maintainer is deprecating it.  Although, I think you can manage Plasma-specific packages like themes and such with Discovery, so keep it if you like.
 

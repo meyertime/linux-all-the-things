@@ -5,9 +5,6 @@ My preferred Descent port is dxx-rebirth.
 ## Installation
 
 1. Install the AUR packages `d1x-rebirth` and `d2x-rebirth`.
-    - At the time of this writing, the git versions are significantly newer and better and I recommend them: `d1x-rebirth-git` and `d2x-rebirth-git`.
-    - I have also run into an issue where the `sdl` dependency cannot be found.  I worked around it by manually installing the latest `sdl` first.
-    - I have also had it get stuck in the middle of installing.  Even after cancelling, it won’t install packages because it thinks there’s another package manager running.  In that case, remove the file `/var/lib/pacman/db.lck`.
 2. Make a rule to disable compositing while Descent is open.  This improves video performance.
     1. Open `System Settings`.
     2. Navigate to `Workspace` → `Window Management` → `Window Rules`.
@@ -20,8 +17,8 @@ My preferred Descent port is dxx-rebirth.
     9. Click `OK`.
 3. Load game content.  This is not documented in a very easy-to-find location, but on Linux, it will look for game content in `/usr/share/d1x-rebirth` or `~/.d1x-rebirth` (same pattern for `d2x`).  The package installs a couple addons under `/usr/share/d1x-rebirth`, but it appears from the code that it will not delete any files added there if you reinstall.  I would recommend making a backup copy of game data elsewhere just in case, however.
     1. Choose where you will save the game data.  I find it easier to use the home directory because it does not require root access to change files there.  However, if the computer has multiple users that want to play, then I would recommend putting the game data under `/usr/share`.
-    2. Copy the game data.  Make sure to include all `.hog`, `.pig`, `.ham`, `.mvl`, `.s11`, and `.s22` files if any exist as well as the entire contents of the `missions` directory, if any.
-    3. If using the home directory and you wish to use a different music addon than the default SC55 one, then delete the `.dxa` file from the directory under `/usr/share`, or move it somewhere else.  I like to keep a directory like `~/d1x-rebirth/addons` to keep all addons not being used.
+    2. Copy the game data.  Make sure to include all `.hog`, `.pig`, `.ham`, `.msn`, `.mvl`, `.s11`, and `.s22` files if any exist as well as the entire contents of the `missions` directory, if any.
+    3. If using the home directory and you wish to use a different music addon than the default SC55 one, then delete the `.dxa` file from the directory under `/usr/share/d1x-rebirth`, or move it somewhere else.  I like to keep a directory like `~/.d1x-rebirth/addons` to keep all addons not being used.
 
 ## Setup ps3pie
 
@@ -31,14 +28,10 @@ Setup `ps3pie` if you wish to use the PS3 controller.
     1. Install the `nvm` AUR package.
     2. `echo 'source /usr/share/nvm/init-nvm.sh' >> ~/.bashrc` to source nvm for bash.
     3. Start a new terminal session.
-    4. `nvm install 10` to install node.js 10.
+    4. `nvm install 16` to install node.js 16.
 2. Install `python2`.  This is needed by the `ioctl` dependency.
     1. `sudo pacman -S python2`
 3. Install ps3pie.
-    1. `npm i -g https://github.com/meyertime/ps3pie.git`
-4. Fix hidraw permissions.
-    1. Follow the instructions at https://github.com/meyertime/ps3pie.
-5. Fix uinput permissions.
     1. Follow the instructions at https://github.com/meyertime/ps3pie.
 
 ## Automate some things
@@ -68,7 +61,7 @@ Create `dxx-rebirth`:
 4. Optionally, launch ps3pie:  (this script uses `nvm` to manage node.js versions)
     ```
     . "$HOME/.nvm/nvm.sh"
-    nvm exec 10 ps3pie &
+    nvm exec 16 -- ps3pie &
     sleep 2s
     ```
 5. Execute the command passed as an argument:

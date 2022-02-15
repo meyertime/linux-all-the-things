@@ -92,3 +92,34 @@ With the default setup, I have run into this error when trying to edit Markdown 
 3. Make sure optional dependency `java8-openjfx` is installed.
 4. In IntelliJ, install the `Choose Runtime` plugin.
 5. Use the plugin to select the 1.8 runtime.
+
+#### Crash on start-up after upgrade
+
+Once in a while after a major upgrade, IntellJ IDEA will crash right after starting it.  If you run `idea-ce` from the terminal, you'll see a message like this:
+
+```
+Error: A JNI error has occurred, please check your installation and try again
+Exception in thread "main" java.lang.UnsupportedClassVersionError: com/intellij/idea/Main has been compiled by a more recent version of the Java Runtime (class file version 55.0), this version of the Java Runtime only recognizes class file versions up to 52.0
+        at java.lang.ClassLoader.defineClass1(Native Method)
+        at java.lang.ClassLoader.defineClass(ClassLoader.java:756)
+        at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+        at java.net.URLClassLoader.defineClass(URLClassLoader.java:468)
+        at java.net.URLClassLoader.access$100(URLClassLoader.java:74)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:369)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:363)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:362)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:352)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+        at sun.launcher.LauncherHelper.checkAndLoadMain(LauncherHelper.java:601)
+```
+
+The problem is that every time there is a new version, it uses a new configuration directory, but sometimes it's not smart enough to check the old configuration directory when first starting, and the default settings cause it to crash.  I'm pretty sure it's the missing `idea.jdk` file that's the problem, but I went ahead and copied the whole configuration directory to try to preserve as many settings as I can.  Here's how to do it:
+
+1. `cd ~/.config/JetBrains`
+2. `ls`
+3. Look for the latest configuration directory, something like `IdeaIC2020.3`.
+4. `pacman -Qs 'intellij-idea-community-edition*'`
+5. See the version that's currently installed.  It will say something like `2021.1-1`.  We're interested in the `2021.1` part.
+6. Copy the latest configuration directory to a new directory named after the current version.  For example, `cp -r IdeaIC2020.3 IdeaIC2021.1`.

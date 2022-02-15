@@ -20,17 +20,21 @@ HDMI_OUT=alsa_output.pci-0000_01_00.1.hdmi-stereo-extra1
 HDMI_OUT_DESC="Video Card"
 
 SINKS=
+SINK_INPUTS=
 SOURCES=
 MODULES=
 
 function read-all {
     SINKS=$(pactl list sinks)
+    SINK_INPUTS=$(pactl list sink-inputs)
     SOURCES=$(pactl list sources)
     MODULES=$(pactl list short modules)
 }
 
 function on-new {
-    sleep 1
+    on-change
+
+    #sleep 1
 
     rename-sink $BUILT_IN_OUT "$BUILT_IN_OUT_DESC"
     rename-source $BUILT_IN_MIC "$BUILT_IN_MIC_DESC"
@@ -48,7 +52,7 @@ function on-new {
         fi
     fi
 
-    on-change
+    #on-change
 }
 
 function on-remove {
@@ -62,11 +66,11 @@ function on-change {
         pactl set-sink-volume $MUTE_SINK 0
     fi
 
-    MUTE_SINK=$(find-sink mute_sink 'Mute: no')
-    if [ "$MUTE_SINK" != "" ]; then
-        echo "Mute sink unmute detected!  Muting..."
-        pactl set-sink-mute $MUTE_SINK 1
-    fi
+    #MUTE_SINK=$(find-sink mute_sink 'Mute: no')
+    #if [ "$MUTE_SINK" != "" ]; then
+    #    echo "Mute sink unmute detected!  Muting..."
+    #    pactl set-sink-mute $MUTE_SINK 1
+    #fi
 
     MUTE_SOURCE=$(find-source mute_source '.*(front-left: [1-9]|front-right: [1-9])')
     if [ "$MUTE_SOURCE" != "" ]; then
@@ -79,11 +83,31 @@ function on-change {
         echo "Mute source unmute detected!  Muting..."
         pactl set-source-mute $MUTE_SOURCE 1
     fi
+
+    SUB_SINK_INPUTS=$(find-sink-inputs '.*Volume: (mono|front-left|front-right): (?!0|65536)[0-9]+.*media.name = "AudioStream"')
+    while read SINK_INPUT; do
+        if [ "$SINK_INPUT" != "" ]; then
+            echo "Sink input $SINK_INPUT below full volume detected!  Maxing..."
+            pactl set-sink-input-volume $SINK_INPUT 65536
+        fi
+    done <<<"$SUB_SINK_INPUTS"
 }
 
 function find-sink {
     #echo "$SINKS" | grep -m 1 -E "^[0-9]+\s+$1\s" | sed -E 's/^([0-9]+).*$/\1/'
     find-thing "$SINKS" Sink "$1" "$2"
+}
+
+function find-sink-inputs {
+    INPUT=$SINK_INPUTS
+    TYPE="Sink Input"
+    CONDITION=$1
+    RESULTS=$(echo "$INPUT" \
+        | sed -E ':begin;$!N;s/\n\s+/\; /;tbegin' \
+        | grep -P "^$TYPE #[0-9]+.*?; $CONDITION" \
+        | sed -E "s/^$TYPE #([0-9]+).*$/\1/" \
+        || '')
+    echo "$RESULTS"
 }
 
 function find-source {
@@ -289,7 +313,7 @@ function read-events {
 
     while IFS= read -r line; do
         EVENT=$(echo "$line" \
-            | grep -E "Event '.+?' on (sink|source) #" \
+            | grep -E "Event '.+?' on (sink|sink-input|source) #" \
             | sed -E "s/^Event '(.+?)'.*\$/\1/")
         if [ -n "$EVENT" ]; then
             echo "$line"
@@ -307,7 +331,7 @@ while true; do
     echo "Exited with code $CODE"
     if [ $CODE != 0 ]; then
         echo "Non-zero exit code!  Aborting!"
-        break;
+        break
     fi
     echo "Zero exit code.  Will retry after 1 second..."
     sleep 1

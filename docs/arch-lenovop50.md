@@ -111,7 +111,8 @@ Here's what I know so far:
         - `DP-2` - Unknown
         - `DP-3` - Mini DisplayPort
         - `DP-4` - Thunderbolt port
-        - `DP-5` - Unknown
+        - `DP-4.*` - When connected to a Thunderbolt dock with multiple video ports, they may be enumerated this way
+        - `DP-5` - Downstream Thunderbolt port
 - I have also tried using the `Discrete Only` setting in the UEFI firmware as suggested in the Arch wiki with the proprietary NVIDIA driver.
     - A slightly different set of outputs results:
         - `DP-0` - Unknown
@@ -122,6 +123,21 @@ Here's what I know so far:
         - `DP-5` - Thunderbolt port
         - `DP-6` - Unknown
     - The internal laptop monitor does not advertise any modes other than its native 4k resolution.  At the same time, the computer boots at a lower resolution for some reason.  The kernel also no longer changes the resolution back to 4k during boot, but when X starts, it is able to.
+
+### Using a Thunderbolt dock
+
+It is possible to get dual 4k @ 60Hz through a Thunderbolt dock.  I use the Lenovo Thunderbolt 3 Dock Gen 2 (40AN0135US).  (I would like to acknowledge previous work on this subject that I found helpful [here](https://bbs.archlinux.org/viewtopic.php?id=255082) and [here](http://juho.tykkala.fi/Lenovo-Thunderbolt-3-dock-Linux).)
+
+This was my first time using true Thunderbolt, and it was not super straight-forward.  Fortunately, most of what you need seems to be built into the regular Arch Linux kernel now, but you will need a user-space tool called `bolt`.
+
+1. Make sure the `bolt` package is installed.
+2. Connect power to the dock.
+3. Plug the dock into the laptop's Thunderbolt port.  Make sure the other end is plugged into the Thunderbolt port on the dock that is meant for connecting to the laptop.  It has an icon of a laptop next to it in addition to the lightning bolt icon.
+4. In a terminal, type `boltctl`.  It will list known and connected Thunderbolt devices.  Find the Lenovo dock and copy the UUID.
+5. Type `boltctl enroll <uuid>` where `<uuid>` is the UUID value you copied earlier.  This will authorize the device _and_ save it to the database of authorized devices.  It is necessary for the dock to be fully functional.
+6. Now you can plug everything into the dock if you haven't already.
+
+There is a trick to getting two 4k @ 60Hz.  With both monitors plugged into the dock's DisplayPort ports, I could not achieve this.  I could only get one at 60Hz and one at 30Hz.  However, by plugging the second monitor into the downstream Thunderbolt port on the dock using a Thunderbolt to DisplayPort adapter, I was able to get both at 60Hz.  Apparently, that is how this dock is set up to handle the laptop's built in outputs.  One DisplayPort output on the laptop controls the ports on the dock, while the second output from the laptop is accessed through the downstream Thunderbolt port.  Perhaps a newer laptop can handle dual 4k @ 60Hz through the one output, but not my P50.
 
 ## Auto-disable wifi when network cable plugged in
 

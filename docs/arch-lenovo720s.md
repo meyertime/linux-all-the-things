@@ -737,7 +737,15 @@ Some KDE Plasma scaling is wrong after switching to NVIDIA mode using `optimus-m
     ```
 2. Log out and back in.
 
-TODO: Slow shut down after installing `optimus-manager`
+##### Fix black screen after wake from sleep
+
+Sometimes there are issues when in NVIDIA mode after waking from sleep.  I was able to fix this by changing the `acpi_osi` kernel parameter to `Windows 2015`.  For full instructions, see https://iam.tj/prototype/enhancements/Windows-acpi_osi.html.
+
+1. Edit `/etc/default/grub` and add the kernel parameters.
+    - For example, `GRUB_CMDLINE_LINUX="acpi_osi=! \"acpi_osi=Windows 2015\""`.  The quotation marks need to be escaped.
+    - If there are existing kernel parameters, append the new ones.  They are separated by spaces.
+2. `sudo grub-mkconfig -o /boot/grub/grub.cfg`
+3. Reboot.
 
 ### Fix font issues
 

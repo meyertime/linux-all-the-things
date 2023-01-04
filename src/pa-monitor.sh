@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ENABLE_HEADSET_FILTER=0
+
 BUILT_IN_OUT=alsa_output.pci-0000_00_1f.3.analog-stereo
 BUILT_IN_OUT_DESC="Built-in"
 BUILT_IN_MIC=alsa_input.pci-0000_00_1f.3.analog-stereo
@@ -9,15 +11,42 @@ HEADPHONE_AMP=alsa_output.usb-CMEDIA_OriGen_G2-00.analog-stereo
 HEADPHONE_AMP_DESC="OriGen"
 
 HEADSET_MIC=alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.
-HEADSET_MIC_DESC="Headset Raw"
+HEADSET_MIC_DESC="Headset"
 HEADSET_EAR=alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.
 HEADSET_EAR_DESC="Headset"
 
-WEBCAM_MIC=alsa_input.usb-046d_0821_A8E00BD0-00.analog-stereo
+WEBCAM_MIC=alsa_input.usb-046d_Logitech_BRIO_E279B805-03.analog-stereo
 WEBCAM_MIC_DESC="Webcam"
 
 HDMI_OUT=alsa_output.pci-0000_01_00.1.hdmi-stereo-extra1
 HDMI_OUT_DESC="Video Card"
+
+DOCK_MIC=alsa_input.usb-Lenovo_ThinkPad_Thunderbolt_3_Dock_USB_Audio_000000000000-00.mono-fallback
+DOCK_MIC_DESC="Dock"
+DOCK_OUT=alsa_output.usb-Lenovo_ThinkPad_Thunderbolt_3_Dock_USB_Audio_000000000000-00.analog-stereo
+DOCK_OUT_DESC="Dock"
+
+MIXER_REC=alsa_input.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo
+MIXER_REC_DESC="Mixer"
+MIXER_OUT=alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo
+MIXER_OUT_DESC="Mixer"
+
+PIANO_REC=alsa_input.usb-Yamaha_Corporation_Digital_Piano-00.analog-stereo
+PIANO_REC_DESC="Piano"
+PIANO_OUT=alsa_output.usb-Yamaha_Corporation_Digital_Piano-00.analog-stereo
+PIANO_OUT_DESC="Piano"
+
+CAPTURE_REC=alsa_input.usb-Elgato_Game_Capture_HD60_S__000671FF84000-03.iec958-stereo
+CAPTURE_REC_DESC="Video Capture"
+
+INTERFACE_REC=alsa_input.usb-Focusrite_Scarlett_18i8_USB_00004162-00.analog-in
+INTERFACE_REC_DESC="Interface"
+INTERFACE_OUT=alsa_output.usb-Focusrite_Scarlett_18i8_USB_00004162-00.analog-out
+INTERFACE_OUT_DESC="Interface"
+
+if [ $ENABLE_HEADSET_FILTER == 1 ]; then
+    HEADSET_MIC_DESC="Headset Raw"
+fi
 
 SINKS=
 SINK_INPUTS=
@@ -43,14 +72,27 @@ function on-new {
     rename-sink $HEADSET_EAR "$HEADSET_EAR_DESC"
     rename-source $WEBCAM_MIC "$WEBCAM_MIC_DESC"
     rename-sink $HDMI_OUT "$HDMI_OUT_DESC"
+    rename-source $DOCK_MIC "$DOCK_MIC_DESC"
+    rename-sink $DOCK_OUT "$DOCK_OUT_DESC"
+    rename-source $MIXER_REC "$MIXER_REC_DESC"
+    rename-sink $MIXER_OUT "$MIXER_OUT_DESC"
+    rename-source $PIANO_REC "$PIANO_REC_DESC"
+    rename-sink $PIANO_OUT "$PIANO_OUT_DESC"
+    rename-source $CAPTURE_REC "$CAPTURE_REC_DESC"
+    rename-sink $INTERFACE_OUT "$INTERFACE_OUT_DESC"
+    rename-source $INTERFACE_REC "$INTERFACE_REC_DESC"
 
-    SOURCE=$(find-source $HEADSET_MIC)
-    if [ "$SOURCE" != "" ]; then
-        SINK=$(find-sink $HEADSET_EAR)
-        if [ "$SINK" != "" ]; then
-            setup-gate headset Headset $SOURCE $SINK
+    if [ $ENABLE_HEADSET_FILTER == 1 ]; then
+        SOURCE=$(find-source $HEADSET_MIC)
+        if [ "$SOURCE" != "" ]; then
+            SINK=$(find-sink $HEADSET_EAR)
+            if [ "$SINK" != "" ]; then
+                setup-gate headset Headset $SOURCE $SINK
+            fi
         fi
     fi
+
+    loopback aux1_sink.monitor $INTERFACE_OUT
 
     #on-change
 }
@@ -116,7 +158,7 @@ function find-source {
 }
 
 function find-module {
-    echo "$MODULES" | grep -m 1 -E "^[0-9]+\s+module-$1\s+.*?($2)" | sed -E 's/^([0-9]+).*$/\1/'
+    echo "$MODULES" | grep -m 1 -E "^[0-9]+\s+module-$1\s+.*?($2)\s+.*?($3)\s" | sed -E 's/^([0-9]+).*$/\1/'
     #find-thing "$MODULES" Module "$1" "$2"
 }
 
@@ -305,6 +347,27 @@ function cleanup-gate {
             pactl unload-module $MODULE
         fi
     done <<<"$MODULES"
+}
+
+function loopback {
+    SOURCE_NAME=$1
+    SINK_NAME=$2
+   
+    SOURCE=$(find-source $SOURCE_NAME)
+    if [ "$SOURCE" != "" ]; then
+        SINK=$(find-sink $SINK_NAME)
+        if [ "$SINK" != "" ]; then
+            if-module loopback source=$SOURCE sink=$SINK || (
+                echo "$SOURCE_NAME source and $SINK_NAME sink detected!  Setting up loopback"
+                pactl load-module module-loopback \
+                    source=$SOURCE \
+                    sink=$SINK \
+                    source_dont_move=true \
+                    sink_dont_move=true \
+                    latency_msec=1
+            )
+        fi
+    fi
 }
 
 function read-events {

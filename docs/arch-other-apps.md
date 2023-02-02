@@ -123,3 +123,9 @@ The problem is that every time there is a new version, it uses a new configurati
 4. `pacman -Qs 'intellij-idea-community-edition*'`
 5. See the version that's currently installed.  It will say something like `2021.1-1`.  We're interested in the `2021.1` part.
 6. Copy the latest configuration directory to a new directory named after the current version.  For example, `cp -r IdeaIC2020.3 IdeaIC2021.1`.
+
+If it still doesn't work, it may be because the new version of IntelliJ is no longer compatible with the configured JDK.  In that case:
+
+- You can test a different JDK version by setting the `IDEA_JDK` environment variable.  For example: `IDEA_JDK=/usr/lib/jvm/java-19-temurin intellij-idea-community-edition`
+- If it works, you can set the boot JDK version through IntelliJ.  See: https://www.jetbrains.com/help/idea/switching-boot-jdk.html
+- You can also edit the `idea.jdk` file inside the configuration directory.  Its content is just the path to the JDK, same as the environment variable above.

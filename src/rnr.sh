@@ -18,12 +18,12 @@ THUNDERBOLT2=DP-5
 DISPLAYPORT=DP-3
 HDMI=DP-1
 
-DOCKDP1=DP-4.2
-DOCKDP2=DP-4.3
+DOCKDP1=DP-5.2
+DOCKDP2=DP-5.3
 
 INT=${INT:-$LAPTOP}
 EXT1=${EXT1:-$DOCKDP1}
-EXT2=${EXT2:-$THUNDERBOLT2}
+EXT2=${EXT2:-$THUNDERBOLT1}
 
 INTEL=eDP-1
 
@@ -66,11 +66,17 @@ function nvidiaUHDDockedProfile()
 
     if [ "$SDDM" == "1" ]; then
         for i in {1..3}; do
+            #xrandr \
+            #    --output $EXT1 --mode 3840x2160 --pos 0x0 \
+            #    --output $EXT2 --mode 3840x2160 --pos 0x0 --primary \
+            #    --output $INT --mode 3840x2160 --transform none --pos 0x0 \
+            #    --output $HDMI --off \
+            #    && break || sleep 5
             xrandr \
-                --output $EXT1 --mode 3840x2160 --pos 0x0 \
-                --output $EXT2 --mode 3840x2160 --pos 0x0 --primary \
-                --output $INT --mode 3840x2160 --transform none --pos 0x0 \
+                --output $EXT1 --off \
+                --output $EXT2 --off \
                 --output $HDMI --off \
+                --output $INT --mode 2880x1620_60.00 --pos 0x0 --primary \
                 && break || sleep 5
         done
     else
@@ -78,7 +84,7 @@ function nvidiaUHDDockedProfile()
             xrandr \
                 --output $EXT1 --mode 3840x2160 --pos 0x0 --panning 3840x2160+0+0 \
                 --output $EXT2 --mode 3840x2160 --pos 0x2160 --panning 3840x2160+0+2160 --primary \
-                --output $INT --mode 2880x1620_60.00 --pos 3840x2700 \
+                --output $INT --mode 2880x1620_60.00 --pos 3840x2500 \
                 --output $HDMI --off \
                 && break || sleep 5
         done

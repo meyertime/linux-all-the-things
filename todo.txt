@@ -1,0 +1,150 @@
+When changing your password in linux, your kwallet will no longer be unlocked automatically; have to sync passwords.  Could not find a way to change the password, so I had to delete the wallet and log back in to create a new one:
+
+`rm ~/.local/share/kwalletd/kdewallet.*`
+Log out and in
+
+password can be changed using the gui tool, package kwalletmanager
+
+
+
+
+Hide grub menu
+edit /etc/default/grub:
+# First, shorter timeout
+GRUB_TIMEOUT=1
+# Then, hide menu during timeout
+GRUB_TIMEOUT_STYLE=hidden
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+Use Esc during boot to access menu
+
+
+
+
+
+cloning a file system
+check using `fsck -f /dev/mmcblk1p4`
+shrink using `resize2fs -M -p /dev/mmcblk1p4`
+make sure the destination file system is capable of supporting a file so large
+copy the first so many bytes of the disk using `ddrescue -s <size in bytes> /dev/mmcblk1p4 /path/to/image/file /path/to/rescue.map`
+or quicker: `dd if=/dev/mmcblk1p4 of=/path/to/image/file bs=4096 count=<size in bytes> iflag=count_bytes status=progress` (check the block size of the output device with `blockdev --getbsz /dev/sdb1`)
+check the image integrity using `fsck.ext4 -f /path/to/image/file`
+important: expand the file system again, as it has no free space now.  the partition size has not changed, but the file system size has changed.  to expand it again: `resize2fs -p /dev/mmcblk1p4`
+before restoring to the new machine, back up a few key files, like fstab
+restore: dd if=/path/to/image/file of=/dev/mmcblk1p4 bs=4096 status=progress
+expand file system to fill partition: `resize2fs -p /dev/mmcblk1p4`
+after restoring, make some changes: fstab, hostname, hosts
+actually, do all arch installation steps from the fstab point forward that don't involve installing packages
+regenerate kernel images? `mkinitcpio -P` - ended up having to reinstall linux package
+
+or, maybe e2image is better?
+
+
+
+renaming linux user
+usermod -l new_username old_username
+mv /home/old_username /home/new_username
+usermod -d /home/new_username -m new_username
+groupmod -n new_username old_username
+id new_username
+
+look for references to the old username in any files in the home directory and correct them
+good ones to delete:
+    ~/.bash_history
+    ~/.viminfo
+    ~/.mozilla/firefox/profiles.ini (and profile data)
+    ~/.cache
+    ~/.recently-used
+    ~/.local/share/Trash/*/*
+    ~/.local/share/user-places.xbel* (change)
+    ~/.local/share/kactivitymanagerd/resources/database*
+    ~/.local/share/recently-used.xbel (safe?)
+    ~/.local/share/kate/anonymous.katesession
+    ~/.Xauthority
+    ~/.config/plasma-org.kde.plasma.desktop-appletsrc (change)
+    ~/.config/session/*
+    ~/.config/ksmserverrc
+    ~/.local/share/sddm/xorg-session.log
+    ~/.local/share/baloo/index (try running `balooctl disable`, `balooctl enable`)
+
+
+
+
+
+favorites:
+firefox
+writer
+calc
+dolphin
+kate
+
+
+
+
+todo notes.txt
+Setting up internet filtering
+
+X install e2guardian aur package
+
+X mitm ssl certificates
+    install system-wide and in firefox
+
+X edit /etc/e2guardian/*.conf files
+    enable mitm ssl stuff
+    filterip 127.0.0.1
+    
+X configure proxy
+    can do system wide with environment variables, must go in /etc/environment, both upper- and lower-case
+    
+X block ports 21, 80, and 443 except for the proxy
+    had to run e2guardian as it's own service user `useradd -r -s /usr/bin/nologin e2guardian`
+    change ownership/permissions of /var/log/e2guardian and /etc/e2guardian/private
+    `iptables -A OUTPUT -o wlp3s0 -p tcp -m owner --uid-owner e2guardian -j ACCEPT`
+    `iptables -A OUTPUT -o wlp3s0 -p tcp -m owner --uid-owner david -j ACCEPT` - optional
+    `iptables -A OUTPUT -o wlp3s0 -p tcp --destination-port 21 -j REJECT`
+    `iptables -A OUTPUT -o wlp3s0 -p tcp --destination-port 80 -j REJECT`
+    `iptables -A OUTPUT -o wlp3s0 -p tcp --destination-port 443 -j REJECT`
+    `iptables-save -f /etc/iptables/iptables.rules`
+    `systemctl enable iptables --now`
+    Disable connectivity checking in NetworkManager, because it doesn't traverse proxy
+
+X configure lists
+    whitelist jw.org, k12.com, archlinux - exceptionsitelist
+    weightedphraselist - deselect proxies
+
+  lock firefox proxy settings
+
+
+
+
+
+linux server
+
+
+
+
+have to configure a network manager to get network working.  went with systemd-networkd and systemd-resolved.
+
+reflector now has timer built-in; need to update docs
+
+changed nvme block size from 512 to 4096 using:
+nvme id-ns /dev/nvme0n1 and nvme format (see Arch Linux wiki Solid state drive/NVMe)
+afterward, had trouble formatting to fat32; some error about not enough clusters.  had to reduce sectors per cluster like `mkfs.fat -F 32 -s 1 /dev/nvme0n1p1`.  by default, it was 8 sectors per cluster.  i kept reducing by halving it, until i arrived at 1 which worked.
+
+
+ssh
+
+Edit /etc/ssh/sshd_config:
+HostKey /etc/ssh/ssh_host_ed25519_key
+AllowUsers david
+PasswordAuthentication no
+ChallengeResponseAuthentication yes   # Need to comment above where the default is no, or it causes problems
+AuthenticationMethods publickey,keyboard-interactive:pam
+PermitRootLogin no
+
+Generate host key:
+sudo ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
+(May not be necessary, as sshd seems to generate all the default ones)
+
+Add public keys to ~/.ssh/authorized_keys for each authorized user
+
+Start/enable sshd.service

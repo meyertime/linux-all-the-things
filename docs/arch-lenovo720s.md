@@ -78,15 +78,18 @@ To change it for a given user:
     ```
 2. `chmod +x ~/.profile` if you just created the file in order to add execute permission to it.
 
-To change it globally for the system:
+To change it globally for the system in one of two ways:
 
-1. Create a `.sh` file under `/etc/profile.d/` with the lines:
-    ```
-    #!/bin/bash
-    export VAR=value
-    export VAR2=value2
-    ```
-2. `chmod +x file` to add execute permission to the file.
+- Shell agnostic:
+    1. Edit `/etc/environment` and enter `variable=value`, one on each line.
+- For login shells only:
+    1. Create a `.sh` file under `/etc/profile.d/` with the lines:
+        ```
+        #!/bin/bash
+        export VAR=value
+        export VAR2=value2
+        ```
+    2. `chmod +x file` to add execute permission to the file.
 
 ## Preparing for installation
 

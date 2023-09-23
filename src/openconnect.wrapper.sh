@@ -29,8 +29,8 @@ trap 'handle_signal KILL' KILL
 echo '> openconnect' "$@"
 
 GP_OKTA_DIR="/usr/local/lib/pan-globalprotect-okta"
-GP_OKTA_CONF="$GP_OKTA_DIR/gp-okta.conf"
-CSD_WRAPPER="$GP_OKTA_DIR/hipreport.sh"
+GP_OKTA_CONF="$GP_OKTA_DIR/dj.conf"
+CSD_WRAPPER="$GP_OKTA_DIR/dj-hipreport.sh"
 EXTRA_ARGS="--os win"
 
 ARGS=

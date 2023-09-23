@@ -1,0 +1,9 @@
+[Unit]
+Requires=timekpr.service
+After=suspend.target
+
+[Service]
+ExecStart=echo
+
+[Install]
+WantedBy=suspend.target

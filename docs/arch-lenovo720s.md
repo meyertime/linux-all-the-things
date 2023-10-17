@@ -932,7 +932,7 @@ See the headings "Unregister existing Wine file associations" and "Prevent new W
 ### File systems
 
 - exFAT
-    1. Install `exfat-utils`.
+    1. Install `exfatprogs`.
 - FAT32
     1. Install `dosfstools`.
 - f2fs

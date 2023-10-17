@@ -1165,3 +1165,28 @@ I am not going to cover downgrading in general very thoroughly at this time.  Th
 1. To prevent the packages from being accidentally updated before the issue with the latest version is resolved, add them to the `IgnorePkg` section of `/etc/pacman.conf`.
     1. Locate the line that begins with `IgnorePkg=` which may be commented out.
     2. Change it to reflect your desired ignore list, uncommenting if necessary.  Multiple packages are separated by spaces.  Glob patterns may also be used.
+
+### Updating and/or installing packages
+
+Assuming it has not been too long since you last did a full system update, the following options are available to you:
+
+- `pamac update` does a full system update including AUR, if configured.
+- `sudo pacman -Syu` does a full system update excluding AUR.
+- `sudo pacman -S [package]` installs a package using the current package database without updating any packages.  You may get an older version of the package which is current with the other packages installed on your system.
+- `sudo pacman -Sy [package]` updates the package database and installs or updates a package.  Be careful with this one; the version of the package installed may not be compatible with the packages currently installed on your system.  Plus the updated package database will be used for future installations while some packages are not up-to-date with it.
+- `sudo pacman -Syu [package]` installs a package while performing a full system update excluding AUR.  This is the best way to install a new package.
+- `pamac install [package]` installs a package, which may also be an AUR package.  Depending on how `pamac` is configured, it may do a full system update as well.
+
+#### Updating the system infrequently
+
+If you have not updated your system in a long time, you may run into trouble.  Follow these steps to get up-to-date:
+
+1. Update the package database: `sudo pacman -Syy`
+2. Update the `archlinux-keyring` package: `sudo pacman -S archlinux-keyring`
+3. Perform a full system update through `pacman`: `sudo pacman -Su`
+4. Optionally reboot.  At this point, you have not updated any AUR packages, so your system is only partially updated.  However, some AUR packages may fail to build if you don't reboot with an updated system.
+5. Update `pamac`: `pamac build libpamac-aur pamac-aur`
+    - This uses `pamac` to update `pamac`.  If this fails, build `pamac` the manual AUR way.
+6. Update the remaining AUR packages: `pamac update`
+7. Reboot
+8. Double-check that your system is up-to-date: `pamac update`
